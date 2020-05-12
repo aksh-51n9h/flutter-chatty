@@ -10,11 +10,14 @@ class NewChat extends StatefulWidget {
 }
 
 class _NewChatState extends State<NewChat> {
-  final Firestore db = Firestore.instance;
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final Firestore _db = Firestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isChatExist(String userID, List<DocumentSnapshot> docRef) {
     for (int index = 0; index < docRef.length; index++) {
+      print(userID);
+      print(docRef[index]['receiverID']);
+
       if (docRef[index]['receiverID'].compareTo(userID) == 0) {
         return true;
       }
@@ -31,7 +34,7 @@ class _NewChatState extends State<NewChat> {
         title: Text('New Chat'),
       ),
       body: FutureBuilder<FirebaseUser>(
-        future: auth.currentUser(),
+        future: _auth.currentUser(),
         builder: (ctx, userData) {
           if (userData.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
@@ -47,7 +50,7 @@ class _NewChatState extends State<NewChat> {
 
   StreamBuilder<QuerySnapshot> _buildChatsListStreamBuilder(String userID) {
     return StreamBuilder<QuerySnapshot>(
-      stream: db.collection('users/$userID/chats_list').snapshots(),
+      stream: _db.collection('users/$userID/chats_list').snapshots(),
       builder: (ctx, chatsListSnapshot) {
         if (chatsListSnapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -64,7 +67,7 @@ class _NewChatState extends State<NewChat> {
   StreamBuilder<QuerySnapshot> _buildUsersListStreamBuilder(
       String userID, List<DocumentSnapshot> chatsDocs) {
     return StreamBuilder<QuerySnapshot>(
-      stream: db.collection('users').snapshots(),
+      stream: _db.collection('users').snapshots(),
       builder: (ctx, chatsListSnapshot) {
         if (chatsListSnapshot.connectionState == ConnectionState.waiting) {
           return Center(
@@ -86,7 +89,7 @@ class _NewChatState extends State<NewChat> {
       itemCount: usersList.length,
       itemBuilder: (ctx, index) {
         if (usersList[index].documentID.compareTo(userID) != 0 &&
-            !_isChatExist(userID, chatsDocs)) {
+            !_isChatExist(usersList[index].documentID, chatsDocs)) {
           return _buildListTile(usersList, index, userID);
         }
         return SizedBox();
@@ -102,27 +105,29 @@ class _NewChatState extends State<NewChat> {
         return Navigator.of(context).push(
           MaterialPageRoute(
             builder: (ctx) {
-              final WriteBatch batch = db.batch();
+              final WriteBatch batch = _db.batch();
               final String receiverID = usersList[index].documentID;
               final String newChatID = (userID.compareTo(receiverID) > 0)
                   ? userID + receiverID
                   : receiverID + userID;
 
               final DocumentReference userChats =
-                  db.collection('chats').document(newChatID);
+                  _db.collection('chats').document(newChatID);
               batch.setData(
                 userChats,
                 {
                   'senderID': userID,
+                  'requestedChat': true,
                   'receiverID': receiverID,
+                  'primaryChat': false,
                   'messageAllowed': false,
                   'blocked': false,
                   'blockedBy': null,
                 },
               );
 
-              final CollectionReference chatsList =
-                  db.collection('users/$userID/chats_list');
+              CollectionReference chatsList =
+                  _db.collection('users/$userID/chats_list');
               chatsList.add(
                 {
                   'username': usersList[index]['username'],
@@ -132,6 +137,18 @@ class _NewChatState extends State<NewChat> {
                   'mute': false,
                 },
               );
+
+              chatsList = _db.collection('users/$receiverID/chats_list');
+              chatsList.add(
+                {
+                  'username': usersList[index]['username'],
+                  'receiverID': userID,
+                  'blocked': false,
+                  'blockedBy': null,
+                  'mute': false,
+                },
+              );
+
               batch.commit();
 
               return ChatScreen(

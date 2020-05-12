@@ -14,7 +14,6 @@ class _AllChatsState extends State<AllChats> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
         title: Text('All Chats'),
         actions: <Widget>[
           IconButton(
@@ -87,7 +86,7 @@ class _AllChatsState extends State<AllChats> {
                       return Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (ctx) => ChatScreen(
-                              userDocs[index].documentID,
+                              userDocs[index]['receiverID'],
                               userDocs[index]['username']),
                         ),
                       );
