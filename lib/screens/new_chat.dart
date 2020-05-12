@@ -39,46 +39,58 @@ class _NewChatState extends State<NewChat> {
 
           final userID = userData.data.uid;
 
-          return StreamBuilder<QuerySnapshot>(
-            stream: db.collection('users/$userID/chats_list').snapshots(),
-            builder: (ctx, chatsListSnapshot) {
-              if (chatsListSnapshot.connectionState ==
-                  ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              }
-
-              final List<DocumentSnapshot> chatsDocs =
-                  chatsListSnapshot.data.documents;
-
-              return StreamBuilder<QuerySnapshot>(
-                stream: db.collection('users').snapshots(),
-                builder: (ctx, chatsListSnapshot) {
-                  if (chatsListSnapshot.connectionState ==
-                      ConnectionState.waiting) {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-
-                  final List<DocumentSnapshot> usersList =
-                      chatsListSnapshot.data.documents;
-
-                  return ListView.builder(
-                    itemCount: usersList.length,
-                    itemBuilder: (ctx, index) {
-                      if (usersList[index].documentID.compareTo(userID) != 0 &&
-                          !_isChatExist(userID, chatsDocs)) {
-                        return _buildListTile(usersList, index, userID);
-                      }
-                      return SizedBox();
-                    },
-                  );
-                },
-              );
-            },
-          );
+          return _buildChatsListStreamBuilder(userID);
         },
       ),
+    );
+  }
+
+  StreamBuilder<QuerySnapshot> _buildChatsListStreamBuilder(String userID) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: db.collection('users/$userID/chats_list').snapshots(),
+      builder: (ctx, chatsListSnapshot) {
+        if (chatsListSnapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        }
+
+        final List<DocumentSnapshot> chatsDocs =
+            chatsListSnapshot.data.documents;
+
+        return _buildUsersListStreamBuilder(userID, chatsDocs);
+      },
+    );
+  }
+
+  StreamBuilder<QuerySnapshot> _buildUsersListStreamBuilder(
+      String userID, List<DocumentSnapshot> chatsDocs) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: db.collection('users').snapshots(),
+      builder: (ctx, chatsListSnapshot) {
+        if (chatsListSnapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        final List<DocumentSnapshot> usersList =
+            chatsListSnapshot.data.documents;
+
+        return _buildListView(usersList, userID, chatsDocs);
+      },
+    );
+  }
+
+  ListView _buildListView(List<DocumentSnapshot> usersList, String userID,
+      List<DocumentSnapshot> chatsDocs) {
+    return ListView.builder(
+      itemCount: usersList.length,
+      itemBuilder: (ctx, index) {
+        if (usersList[index].documentID.compareTo(userID) != 0 &&
+            !_isChatExist(userID, chatsDocs)) {
+          return _buildListTile(usersList, index, userID);
+        }
+        return SizedBox();
+      },
     );
   }
 
