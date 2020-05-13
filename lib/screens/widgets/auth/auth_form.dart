@@ -1,3 +1,4 @@
+import 'package:chatty/screens/widgets/picker/user_image_picker.dart';
 import 'package:flutter/material.dart';
 
 class AuthForm extends StatefulWidget {
@@ -43,26 +44,34 @@ class _AuthFormState extends State<AuthForm> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
+                  UserImagePicker(),
+                  SizedBox(height: 8),
                   if (!_isLogin)
                     TextFormField(
-                      key: ValueKey('name'),
+                      key: ValueKey('fullname'),
                       decoration: InputDecoration(
-                        labelText: 'Name',
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                        hintText: 'Full Name',
                       ),
                       onSaved: (value) {
                         _userName = value;
                       },
                     ),
+                  SizedBox(height: 8),
                   if (!_isLogin)
                     TextFormField(
                       key: ValueKey('username'),
                       decoration: InputDecoration(
-                        labelText: 'Username',
+                        border: OutlineInputBorder(),
+                        isDense: true,
+                        hintText: 'Username',
                       ),
                       onSaved: (value) {
                         _userName = value;
                       },
                     ),
+                  SizedBox(height: 8),
                   TextFormField(
                     key: ValueKey('email'),
                     keyboardType: TextInputType.emailAddress,
@@ -74,12 +83,15 @@ class _AuthFormState extends State<AuthForm> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: 'Email',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      hintText: 'Email',
                     ),
                     onSaved: (value) {
                       _userEmail = value;
                     },
                   ),
+                  SizedBox(height: 8),
                   TextFormField(
                     key: ValueKey('password'),
                     obscureText: true,
@@ -91,7 +103,9 @@ class _AuthFormState extends State<AuthForm> {
                       return null;
                     },
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      border: OutlineInputBorder(),
+                      isDense: true,
+                      hintText: 'Password',
                     ),
                     onSaved: (value) {
                       _userPassword = value;
