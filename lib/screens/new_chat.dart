@@ -3,6 +3,7 @@ import 'package:chatty/screens/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NewChat extends StatefulWidget {
   @override
@@ -139,15 +140,17 @@ class _NewChatState extends State<NewChat> {
               );
 
               chatsList = _db.collection('users/$receiverID/chats_list');
-              chatsList.add(
-                {
-                  'username': usersList[index]['username'],
-                  'receiverID': userID,
-                  'blocked': false,
-                  'blockedBy': null,
-                  'mute': false,
-                },
-              );
+              _getUserName().then((username) {
+                chatsList.add(
+                  {
+                    'username': username,
+                    'receiverID': userID,
+                    'blocked': false,
+                    'blockedBy': null,
+                    'mute': false,
+                  },
+                );
+              });
 
               batch.commit();
 
@@ -158,5 +161,10 @@ class _NewChatState extends State<NewChat> {
         );
       },
     );
+  }
+
+  Future<String> _getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username') ?? '';
   }
 }

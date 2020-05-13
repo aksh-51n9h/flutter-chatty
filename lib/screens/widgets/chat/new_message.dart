@@ -90,7 +90,7 @@ class _NewMessageState extends State<NewMessage> {
                 icon: Icon(
                   Icons.send,
                   color: _enteredMessage.trim().isNotEmpty
-                      ? Colors.tealAccent
+                      ? Colors.blueAccent[100]
                       : null,
                 ),
                 onPressed: _enteredMessage.trim().isEmpty ? null : _sendMessage,

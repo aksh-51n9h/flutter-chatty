@@ -43,6 +43,26 @@ class _AuthFormState extends State<AuthForm> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
+                  if (!_isLogin)
+                    TextFormField(
+                      key: ValueKey('name'),
+                      decoration: InputDecoration(
+                        labelText: 'Name',
+                      ),
+                      onSaved: (value) {
+                        _userName = value;
+                      },
+                    ),
+                  if (!_isLogin)
+                    TextFormField(
+                      key: ValueKey('username'),
+                      decoration: InputDecoration(
+                        labelText: 'Username',
+                      ),
+                      onSaved: (value) {
+                        _userName = value;
+                      },
+                    ),
                   TextFormField(
                     key: ValueKey('email'),
                     keyboardType: TextInputType.emailAddress,
@@ -60,16 +80,6 @@ class _AuthFormState extends State<AuthForm> {
                       _userEmail = value;
                     },
                   ),
-                  if (!_isLogin)
-                    TextFormField(
-                      key: ValueKey('username'),
-                      decoration: InputDecoration(
-                        labelText: 'Username',
-                      ),
-                      onSaved: (value) {
-                        _userName = value;
-                      },
-                    ),
                   TextFormField(
                     key: ValueKey('password'),
                     obscureText: true,

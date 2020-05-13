@@ -47,7 +47,7 @@ class MessageBubble extends StatelessWidget {
                 maxWidth: constraints.maxWidth * 0.625,
               ),
               decoration: BoxDecoration(
-                color: isMe ? Colors.teal[700] : Colors.blueGrey[700],
+                color: isMe ? Colors.blue[800] : Colors.blueGrey[700],
                 borderRadius: isMe
                     ? BorderRadius.only(
                         topLeft: radius, topRight: radius, bottomLeft: radius)
