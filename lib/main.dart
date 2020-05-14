@@ -1,3 +1,5 @@
+import 'package:chatty/screens/root_page.dart';
+import 'package:chatty/screens/widgets/auth/auth.dart';
 
 import './screens/all_chats.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +22,7 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.blue[600],
         scaffoldBackgroundColor: Colors.black,
       ),
-      home: StreamBuilder<FirebaseUser>(
-        stream: FirebaseAuth.instance.onAuthStateChanged,
-        builder: (ctx, userSnapshot) {
-          if (userSnapshot.hasData) {
-            return AllChats();
-          }
-
-          return AuthScreen();
-        },
-      ),
+      home: RootPage(Auth()),
     );
   }
 }

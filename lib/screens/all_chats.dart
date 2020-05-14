@@ -1,24 +1,32 @@
+import 'package:chatty/screens/widgets/auth/auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
 import '../models/user.dart';
 import '../screens/chat_screen.dart';
 import '../screens/new_chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import '../utils/utils.dart';
 
 class AllChats extends StatefulWidget {
+  AllChats({this.userID, this.auth, this.logoutCallback});
+
+  final String userID;
+  final BaseAuth auth;
+  final VoidCallback logoutCallback;
   @override
   _AllChatsState createState() => _AllChatsState();
 }
 
 class _AllChatsState extends State<AllChats> {
   List<DocumentSnapshot> _allChats;
+  User sender;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: Text('All Chats'),
+        title: Text('All Chats \n ${sender?.fullname}'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
@@ -27,19 +35,31 @@ class _AllChatsState extends State<AllChats> {
           IconButton(
             icon: Icon(Icons.exit_to_app),
             onPressed: () {
-              FirebaseAuth.instance.signOut();
+              dispose();
+              widget.auth.signOut();
+              widget.logoutCallback();
             },
           ),
         ],
       ),
-      body: FutureBuilder<User>(
-        future: getCurrentUser(),
+      body: FutureBuilder<FirebaseUser>(
+        future: FirebaseAuth.instance.currentUser(),
         builder: (ctx, userData) {
           if (userData.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
 
-          final User sender = userData.data;
+          final user = userData.data;
+          
+
+          sender = User(
+            fullname: user.displayName,
+            email: user.email,
+            imageUrl: user.photoUrl,
+            uid: user.uid,
+            username: 'username',
+          );
+
           final String senderID = sender.uid;
           final Firestore db = Firestore.instance;
           final CollectionReference chatsListCollectionRef =
@@ -55,17 +75,19 @@ class _AllChatsState extends State<AllChats> {
                 );
               }
 
-              _allChats = chatsListSnapshot.data.documents;
+              var allChats = chatsListSnapshot.data.documents;
+              _allChats = allChats;
 
               return ListView.builder(
-                itemCount: _allChats.length,
+                itemCount: allChats.length,
                 itemBuilder: (ctx, index) {
                   final DocumentReference chatDocRef = chatsListCollectionRef
-                      .document(_allChats[index].documentID);
+                      .document(allChats[index].documentID);
 
-                  final user = _allChats[index];
+                  var user = allChats[index];
 
                   final User receiver = User(
+                    key: ValueKey(user['receiverID']),
                     fullname: user['fullname'],
                     username: user['username'],
                     uid: user['receiverID'],
@@ -88,7 +110,7 @@ class _AllChatsState extends State<AllChats> {
                           ),
                         ),
                       ),
-                      title: Text(receiver.username),
+                      title: Text(allChats[index]['username']),
                       subtitle: Text('last message'),
                       onTap: () {
                         return Navigator.of(context).push(

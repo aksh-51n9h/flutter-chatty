@@ -54,38 +54,55 @@ class _NewChatState extends State<NewChat> {
               final List<DocumentSnapshot> availableUser =
                   availableUsersSnapshot.data.documents;
 
-              return ListView.builder(itemBuilder: (ctx, index) {
-                final user = availableUser[index];
-                final User receiver = User(
-                  fullname: user['fullname'],
-                  username: user['username'],
-                  uid: user['uid'],
-                  email: user['email'],
-                  imageUrl: user['imageUrl'],
-                );
+              return ListView.builder(
+                  itemCount: availableUser.length,
+                  itemBuilder: (ctx, index) {
+                    final user = availableUser[index];
+                    final User receiver = User(
+                      fullname: user['fullname'],
+                      username: user['username'],
+                      uid: user.documentID,
+                      email: user['email'],
+                      imageUrl: user['imageUrl'],
+                    );
 
-                if ((user.documentID.compareTo(sender.uid) != 0) &&
-                    _isChatExist(receiver)) {
-                  return ListTile(
-                    title: Text(receiver.username),
-                    subtitle: Text(receiver.fullname),
-                    onTap: () {
-                      return Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (ctx) {
-                            return ChatScreen(
-                              sender: sender,
-                              receiver: receiver,
-                              isNewChat: true,
-                            );
-                          },
+                    // print("Rec : ${receiver.map()}");
+                    // print("Sen : ${sender.map()}");
+
+                    if ((receiver.uid.compareTo(sender.uid) != 0) &&
+                        !_isChatExist(receiver)) {
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: Colors.blueGrey[900],
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: new DecorationImage(
+                                fit: BoxFit.cover,
+                                image: new NetworkImage(receiver.imageUrl),
+                              ),
+                            ),
+                          ),
                         ),
+                        title: Text(receiver.username),
+                        subtitle: Text(receiver.fullname),
+                        onTap: () {
+                          return Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (ctx) {
+                                return ChatScreen(
+                                  sender: sender,
+                                  receiver: receiver,
+                                  isNewChat: true,
+                                );
+                              },
+                            ),
+                          );
+                        },
                       );
-                    },
-                  );
-                }
-                return SizedBox();
-              });
+                    }
+                    return SizedBox();
+                  });
             },
           );
         },

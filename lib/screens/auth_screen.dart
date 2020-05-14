@@ -1,38 +1,42 @@
 import 'dart:io';
 
-import 'package:chatty/models/user.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import '../models/user.dart';
+import '../screens/widgets/auth/auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import './widgets/auth/auth_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthScreen extends StatefulWidget {
+  AuthScreen({this.auth, this.loginCallback});
+
+  final BaseAuth auth;
+  final VoidCallback loginCallback;
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
 
 class _AuthScreenState extends State<AuthScreen> {
-  final _auth = FirebaseAuth.instance;
   bool _isLoading = false;
 
   void _submitAuthForm(String fullName, String email, String username,
       String password, File userImage, bool isLogin, BuildContext ctx) async {
-    AuthResult authResult;
+    final _auth = widget.auth;
+    FirebaseUser user;
     try {
       setState(() {
         _isLoading = true;
       });
 
       if (isLogin) {
-        authResult = await _auth.signInWithEmailAndPassword(
-            email: email, password: password);
-
-        final DocumentReference userDocs = Firestore.instance
-            .collection('users')
-            .document(authResult.user.uid);
+        user = await _auth.signIn(email, password);
+        final String userID = user.uid;
+        final DocumentReference userDocs =
+            Firestore.instance.collection('users').document(userID);
 
         userDocs.get().then((user) {
           if (user.exists) {
@@ -41,7 +45,7 @@ class _AuthScreenState extends State<AuthScreen> {
             final User sender = User(
               fullname: userData['fullname'],
               username: userData['username'],
-              uid: authResult.user.uid,
+              uid: userID,
               email: userData['email'],
               imageUrl: userData['imageUrl'],
             );
@@ -50,22 +54,28 @@ class _AuthScreenState extends State<AuthScreen> {
           }
         });
       } else {
-        authResult = await _auth.createUserWithEmailAndPassword(
-            email: email, password: password);
+        user = await _auth.signUp(email, password);
 
         final StorageReference ref = FirebaseStorage.instance
             .ref()
             .child('users_images')
-            .child(authResult.user.uid + '.jpg');
+            .child(user.uid + '.jpg');
 
         await ref.putFile(userImage).onComplete;
 
         final imageUrl = await ref.getDownloadURL();
 
-        await Firestore.instance
-            .collection('users')
-            .document(authResult.user.uid)
-            .setData(
+        final UserUpdateInfo userUpdateInfo = UserUpdateInfo();
+        userUpdateInfo.displayName = fullName;
+        userUpdateInfo.photoUrl = imageUrl;
+
+        try {
+          user.updateProfile(userUpdateInfo);
+        } catch (error) {
+          print(error);
+        }
+
+        await Firestore.instance.collection('users').document(user.uid).setData(
           {
             'fullname': fullName,
             'username': username,
@@ -78,11 +88,15 @@ class _AuthScreenState extends State<AuthScreen> {
           fullname: fullName,
           username: username,
           email: email,
-          uid: authResult.user.uid,
+          uid: user.uid,
           imageUrl: imageUrl,
         );
 
         _saveUserLocal(sender);
+      }
+
+      if (user.uid.length > 0 && user.uid != null && isLogin) {
+        widget.loginCallback();
       }
     } on PlatformException catch (error) {
       var message = "An error occured, please check your credentials!";

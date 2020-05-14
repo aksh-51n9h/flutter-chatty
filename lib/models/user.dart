@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class User {
   User({
+    this.key,
     @required this.fullname,
     @required this.username,
     @required this.uid,
@@ -14,6 +15,7 @@ class User {
   final String uid;
   final String email;
   final String imageUrl;
+  final Key key;
 
   Map<String, Object> map() {
     return {
