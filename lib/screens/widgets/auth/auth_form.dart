@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chatty/screens/widgets/picker/user_image_picker.dart';
 import 'package:flutter/material.dart';
 
@@ -5,28 +7,40 @@ class AuthForm extends StatefulWidget {
   AuthForm(this.submitFn, this.isLoading);
 
   final bool isLoading;
-  final void Function(String email, String username, String password,
-      bool isLogin, BuildContext ctx) submitFn;
+  final void Function(String fullName, String email, String username,
+      String password, File userImage, bool isLogin, BuildContext ctx) submitFn;
   @override
   _AuthFormState createState() => _AuthFormState();
 }
 
 class _AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
+  String _fullName = '';
   String _userEmail = '';
   String _userName = '';
   String _userPassword = '';
-  var _isLogin = true;
+  bool _isLogin = true;
+  File _userImageFile;
+
+  void _pickedImage(File image) {
+    _userImageFile = image;
+  }
 
   void _trySubmit() {
     final isValid = _formKey.currentState.validate();
 
     FocusScope.of(context).unfocus();
 
+    if (!_isLogin && _userImageFile == null) {
+      Scaffold.of(context)
+          .showSnackBar(SnackBar(content: Text('Please pick an image.')));
+      return;
+    }
+
     if (isValid) {
       _formKey.currentState.save();
-      widget.submitFn(_userEmail.trim(), _userName.trim(), _userPassword,
-          _isLogin, context);
+      widget.submitFn(_fullName, _userEmail.trim(), _userName.trim(),
+          _userPassword, _userImageFile, _isLogin, context);
     }
   }
 
@@ -44,7 +58,7 @@ class _AuthFormState extends State<AuthForm> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  if (!_isLogin) UserImagePicker(),
+                  if (!_isLogin) UserImagePicker(_pickedImage),
                   SizedBox(height: 8),
                   if (!_isLogin)
                     TextFormField(
@@ -55,7 +69,14 @@ class _AuthFormState extends State<AuthForm> {
                         hintText: 'Full Name',
                       ),
                       onSaved: (value) {
-                        _userName = value;
+                        _fullName = value;
+                      },
+                      validator: (value) {
+                        if (value.isEmpty) {
+                          return 'Please enter your full name.';
+                        }
+
+                        return null;
                       },
                     ),
                   SizedBox(height: 8),

@@ -14,6 +14,7 @@ class _AllChatsState extends State<AllChats> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 0,
         title: Text('All Chats'),
         actions: <Widget>[
           IconButton(
@@ -59,39 +60,47 @@ class _AllChatsState extends State<AllChats> {
                   final chatDocRef = chatsListCollectionRef
                       .document(userDocs[index].documentID);
 
-                  return ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.blueGrey[900],
-                    ),
-                    title: Text(userDocs[index]['username']),
-                    subtitle: Text('last message'),
-                    trailing: IconButton(
-                      icon: Icon(userDocs[index]['mute']
-                          ? Icons.volume_off
-                          : Icons.volume_down),
-                      color:
-                          userDocs[index]['mute'] ? Colors.white : Colors.grey,
-                      onPressed: () {
-                        bool mute = userDocs[index]['mute'];
+                  return Container(
+                    color: Theme.of(context).primaryColor,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blueGrey[900],
+                        child: Image.network(
+                          userDocs[index]['imageUrl'],
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      title: Text(userDocs[index]['username']),
+                      subtitle: Text('last message'),
+                      trailing: IconButton(
+                        icon: Icon(userDocs[index]['mute']
+                            ? Icons.volume_off
+                            : Icons.volume_down),
+                        color: userDocs[index]['mute']
+                            ? Colors.white
+                            : Colors.grey,
+                        onPressed: () {
+                          bool mute = userDocs[index]['mute'];
 
-                        try {
-                          chatDocRef.updateData({
-                            'mute': !mute,
-                          });
-                        } catch (error) {
-                          print(error);
-                        }
+                          try {
+                            chatDocRef.updateData({
+                              'mute': !mute,
+                            });
+                          } catch (error) {
+                            print(error);
+                          }
+                        },
+                      ),
+                      onTap: () {
+                        return Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => ChatScreen(
+                                userDocs[index]['receiverID'],
+                                userDocs[index]['username']),
+                          ),
+                        );
                       },
                     ),
-                    onTap: () {
-                      return Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (ctx) => ChatScreen(
-                              userDocs[index]['receiverID'],
-                              userDocs[index]['username']),
-                        ),
-                      );
-                    },
                   );
                 },
               );
