@@ -64,6 +64,7 @@ class _AllChatsState extends State<AllChats> {
                       backgroundColor: Colors.blueGrey[900],
                     ),
                     title: Text(userDocs[index]['username']),
+                    subtitle: Text('last message'),
                     trailing: IconButton(
                       icon: Icon(userDocs[index]['mute']
                           ? Icons.volume_off

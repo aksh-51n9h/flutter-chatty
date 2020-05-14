@@ -34,7 +34,7 @@ class _AuthFormState extends State<AuthForm> {
   Widget build(BuildContext context) {
     return Center(
       child: Card(
-        color: Colors.blueGrey[900],
+        color: Theme.of(context).primaryColor,
         margin: const EdgeInsets.all(20),
         child: SingleChildScrollView(
           child: Padding(
@@ -44,7 +44,7 @@ class _AuthFormState extends State<AuthForm> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  UserImagePicker(),
+                  if (!_isLogin) UserImagePicker(),
                   SizedBox(height: 8),
                   if (!_isLogin)
                     TextFormField(

@@ -12,6 +12,10 @@ class _UserImagePickerState extends State<UserImagePicker> {
   File _pickedImage;
 
   void _pickImage() async {
+    setState(() {
+      _pickedImage = null;
+    });
+
     final pickedImageFile =
         await ImagePicker.pickImage(source: ImageSource.camera);
 
@@ -23,16 +27,14 @@ class _UserImagePickerState extends State<UserImagePicker> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Column(
-        children: <Widget>[
-          CircleAvatar(
-            radius: 48,
-          ),
-          FlatButton.icon(
-              onPressed: null,
-              icon: Icon(Icons.add_a_photo),
-              label: Text('Image')),
-        ],
+      child: InkWell(
+        onTap: _pickImage,
+        child: CircleAvatar(
+          radius: 48,
+          backgroundImage:
+              _pickedImage != null ? FileImage(_pickedImage) : null,
+          child: _pickedImage != null ? null : Icon(Icons.add_a_photo),
+        ),
       ),
     );
   }
