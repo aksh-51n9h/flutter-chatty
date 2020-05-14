@@ -1,15 +1,16 @@
+import 'package:chatty/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NewMessage extends StatefulWidget {
   NewMessage({
-    @required this.senderID,
-    @required this.receiverID,
+    @required this.sender,
+    @required this.receiver,
     @required this.isNewChat,
   });
-  final String senderID;
-  final String receiverID;
+  final User sender;
+  final User receiver;
   final bool isNewChat;
 
   @override
@@ -22,9 +23,10 @@ class _NewMessageState extends State<NewMessage> {
   String _enteredMessage = '';
 
   void _sendMessage() async {
-    final String chatID = (widget.senderID.compareTo(widget.receiverID) > 0)
-        ? widget.senderID + widget.receiverID
-        : widget.receiverID + widget.senderID;
+    final User sender = widget.sender;
+    final User receiver = widget.receiver;
+
+    final String chatID = _getChatID(sender, receiver);
 
     if (widget.isNewChat) {
       final WriteBatch batch = _db.batch();
@@ -34,39 +36,40 @@ class _NewMessageState extends State<NewMessage> {
       batch.setData(
         userChats,
         {
-          'senderID': widget.senderID,
+          'senderID': sender.uid,
           'requestedChat': true,
-          'receiverID': widget.receiverID,
+          'receiverID': receiver.uid,
           'primaryChat': false,
           'messageAllowed': false,
           'blocked': false,
           'blockedBy': null,
         },
       );
-      _getUserName().then((senderUserName) {
-        CollectionReference chatsList =
-            _db.collection('users/${widget.senderID}/chats_list');
-        chatsList.add(
-          {
-            'username': senderUserName,
-            'receiverID': widget.receiverID,
-            'blocked': false,
-            'blockedBy': null,
-            'mute': false,
-          },
-        );
 
-        chatsList = _db.collection('users/${widget.receiverID}/chats_list');
-        chatsList.add(
-          {
-            'username': senderUserName,
-            'receiverID': widget.senderID,
-            'blocked': false,
-            'blockedBy': null,
-            'mute': false,
-          },
-        );
-      });
+      CollectionReference chatsList =
+          _db.collection('users/${sender.uid}/chats_list');
+      chatsList.add(
+        {
+          'fullname': receiver.fullname,
+          'username': receiver.username,
+          'receiverID': receiver.uid,
+          'imageUrl': receiver.imageUrl,
+          'blocked': false,
+          'blockedBy': null,
+        },
+      );
+
+      chatsList = _db.collection('users/${receiver.uid}/chats_list');
+      chatsList.add(
+        {
+          'fullname': sender.fullname,
+          'username': sender.username,
+          'receiverID': sender.uid,
+          'imageUrl': sender.imageUrl,
+          'blocked': false,
+          'blockedBy': null,
+        },
+      );
 
       batch.commit();
     }
@@ -74,7 +77,7 @@ class _NewMessageState extends State<NewMessage> {
     final Map<String, Object> message = {
       'text': _enteredMessage,
       'createdAt': Timestamp.now(),
-      'userId': widget.senderID,
+      'userId': sender.uid,
     };
 
     _db.collection('chats/$chatID/messages')
@@ -88,9 +91,11 @@ class _NewMessageState extends State<NewMessage> {
     });
   }
 
-  Future<String> _getUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('username') ?? '';
+  String _getChatID(User sender, User receiver) {
+    final String chatID = (sender.uid.compareTo(receiver.uid) > 0)
+        ? sender.uid + receiver.uid
+        : receiver.uid + sender.uid;
+    return chatID;
   }
 
   @override

@@ -1,8 +1,10 @@
-import 'package:chatty/screens/chat_screen.dart';
-import 'package:chatty/screens/new_chat.dart';
+import '../models/user.dart';
+import '../screens/chat_screen.dart';
+import '../screens/new_chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../utils/utils.dart';
 
 class AllChats extends StatefulWidget {
   @override
@@ -10,6 +12,7 @@ class AllChats extends StatefulWidget {
 }
 
 class _AllChatsState extends State<AllChats> {
+  List<DocumentSnapshot> _allChats;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,14 +32,15 @@ class _AllChatsState extends State<AllChats> {
           ),
         ],
       ),
-      body: FutureBuilder<FirebaseUser>(
-        future: FirebaseAuth.instance.currentUser(),
+      body: FutureBuilder<User>(
+        future: getCurrentUser(),
         builder: (ctx, userData) {
           if (userData.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
 
-          final String senderID = userData.data.uid;
+          final User sender = userData.data;
+          final String senderID = sender.uid;
           final Firestore db = Firestore.instance;
           final CollectionReference chatsListCollectionRef =
               db.collection('users/$senderID/chats_list');
@@ -51,14 +55,23 @@ class _AllChatsState extends State<AllChats> {
                 );
               }
 
-              final List<DocumentSnapshot> userDocs =
-                  chatsListSnapshot.data.documents;
+              _allChats = chatsListSnapshot.data.documents;
 
               return ListView.builder(
-                itemCount: userDocs.length,
+                itemCount: _allChats.length,
                 itemBuilder: (ctx, index) {
-                  final chatDocRef = chatsListCollectionRef
-                      .document(userDocs[index].documentID);
+                  final DocumentReference chatDocRef = chatsListCollectionRef
+                      .document(_allChats[index].documentID);
+
+                  final user = _allChats[index];
+
+                  final User receiver = User(
+                    fullname: user['fullname'],
+                    username: user['username'],
+                    uid: user['receiverID'],
+                    email: user['email'],
+                    imageUrl: user['imageUrl'],
+                  );
 
                   return Container(
                     color: Theme.of(context).primaryColor,
@@ -70,40 +83,19 @@ class _AllChatsState extends State<AllChats> {
                             shape: BoxShape.circle,
                             image: new DecorationImage(
                               fit: BoxFit.cover,
-                              image:
-                                  new NetworkImage(userDocs[index]['imageUrl']),
+                              image: new NetworkImage(receiver.imageUrl),
                             ),
                           ),
                         ),
                       ),
-                      title: Text(userDocs[index]['username']),
+                      title: Text(receiver.username),
                       subtitle: Text('last message'),
-                      trailing: IconButton(
-                        icon: Icon(userDocs[index]['mute']
-                            ? Icons.volume_off
-                            : Icons.volume_down),
-                        color: userDocs[index]['mute']
-                            ? Colors.white
-                            : Colors.grey,
-                        onPressed: () {
-                          bool mute = userDocs[index]['mute'];
-
-                          try {
-                            chatDocRef.updateData({
-                              'mute': !mute,
-                            });
-                          } catch (error) {
-                            print(error);
-                          }
-                        },
-                      ),
                       onTap: () {
                         return Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (ctx) => ChatScreen(
-                              senderID: senderID,
-                              receiverID: userDocs[index]['receiverID'],
-                              receiverUserName: userDocs[index]['username'],
+                              sender: sender,
+                              receiver: receiver,
                               isNewChat: false,
                             ),
                           ),
@@ -121,7 +113,7 @@ class _AllChatsState extends State<AllChats> {
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (ctx) => NewChat(),
+              builder: (ctx) => NewChat(_allChats),
             ),
           );
         },
