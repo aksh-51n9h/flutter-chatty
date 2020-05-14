@@ -1,9 +1,7 @@
-import 'package:chatty/screens/all_chats.dart';
 import 'package:chatty/screens/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class NewChat extends StatefulWidget {
   @override
@@ -41,17 +39,17 @@ class _NewChatState extends State<NewChat> {
             return Center(child: CircularProgressIndicator());
           }
 
-          final userID = userData.data.uid;
+          final senderID = userData.data.uid;
 
-          return _buildChatsListStreamBuilder(userID);
+          return _buildChatsListStreamBuilder(senderID);
         },
       ),
     );
   }
 
-  StreamBuilder<QuerySnapshot> _buildChatsListStreamBuilder(String userID) {
+  StreamBuilder<QuerySnapshot> _buildChatsListStreamBuilder(String senderID) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _db.collection('users/$userID/chats_list').snapshots(),
+      stream: _db.collection('users/$senderID/chats_list').snapshots(),
       builder: (ctx, chatsListSnapshot) {
         if (chatsListSnapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
@@ -60,13 +58,13 @@ class _NewChatState extends State<NewChat> {
         final List<DocumentSnapshot> chatsDocs =
             chatsListSnapshot.data.documents;
 
-        return _buildUsersListStreamBuilder(userID, chatsDocs);
+        return _buildUsersListStreamBuilder(senderID, chatsDocs);
       },
     );
   }
 
   StreamBuilder<QuerySnapshot> _buildUsersListStreamBuilder(
-      String userID, List<DocumentSnapshot> chatsDocs) {
+      String senderID, List<DocumentSnapshot> chatsDocs) {
     return StreamBuilder<QuerySnapshot>(
       stream: _db.collection('users').snapshots(),
       builder: (ctx, chatsListSnapshot) {
@@ -79,19 +77,19 @@ class _NewChatState extends State<NewChat> {
         final List<DocumentSnapshot> usersList =
             chatsListSnapshot.data.documents;
 
-        return _buildListView(usersList, userID, chatsDocs);
+        return _buildListView(usersList, senderID, chatsDocs);
       },
     );
   }
 
-  ListView _buildListView(List<DocumentSnapshot> usersList, String userID,
+  ListView _buildListView(List<DocumentSnapshot> usersList, String senderID,
       List<DocumentSnapshot> chatsDocs) {
     return ListView.builder(
       itemCount: usersList.length,
       itemBuilder: (ctx, index) {
-        if (usersList[index].documentID.compareTo(userID) != 0 &&
+        if (usersList[index].documentID.compareTo(senderID) != 0 &&
             !_isChatExist(usersList[index].documentID, chatsDocs)) {
-          return _buildListTile(usersList, index, userID);
+          return _buildListTile(usersList, index, senderID);
         }
         return SizedBox();
       },
@@ -99,72 +97,23 @@ class _NewChatState extends State<NewChat> {
   }
 
   ListTile _buildListTile(
-      List<DocumentSnapshot> usersList, int index, String userID) {
+      List<DocumentSnapshot> usersList, int index, String senderID) {
     return ListTile(
       title: Text(usersList[index]['username']),
       onTap: () {
         return Navigator.of(context).push(
           MaterialPageRoute(
             builder: (ctx) {
-              final WriteBatch batch = _db.batch();
-              final String receiverID = usersList[index].documentID;
-              final String newChatID = (userID.compareTo(receiverID) > 0)
-                  ? userID + receiverID
-                  : receiverID + userID;
-
-              final DocumentReference userChats =
-                  _db.collection('chats').document(newChatID);
-              batch.setData(
-                userChats,
-                {
-                  'senderID': userID,
-                  'requestedChat': true,
-                  'receiverID': receiverID,
-                  'primaryChat': false,
-                  'messageAllowed': false,
-                  'blocked': false,
-                  'blockedBy': null,
-                },
-              );
-
-              CollectionReference chatsList =
-                  _db.collection('users/$userID/chats_list');
-              chatsList.add(
-                {
-                  'username': usersList[index]['username'],
-                  'receiverID': receiverID,
-                  'blocked': false,
-                  'blockedBy': null,
-                  'mute': false,
-                },
-              );
-
-              chatsList = _db.collection('users/$receiverID/chats_list');
-              _getUserName().then((username) {
-                chatsList.add(
-                  {
-                    'username': username,
-                    'receiverID': userID,
-                    'blocked': false,
-                    'blockedBy': null,
-                    'mute': false,
-                  },
-                );
-              });
-
-              batch.commit();
-
               return ChatScreen(
-                  usersList[index].documentID, usersList[index]['username']);
+                senderID: senderID,
+                receiverID: usersList[index].documentID,
+                receiverUserName: usersList[index]['username'],
+                isNewChat: true,
+              );
             },
           ),
         );
       },
     );
-  }
-
-  Future<String> _getUserName() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('username') ?? '';
   }
 }

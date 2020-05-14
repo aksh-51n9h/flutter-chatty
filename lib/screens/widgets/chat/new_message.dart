@@ -1,44 +1,96 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class NewMessage extends StatefulWidget {
-  NewMessage(this.toUserId);
-  final String toUserId;
+  NewMessage({
+    @required this.senderID,
+    @required this.receiverID,
+    @required this.isNewChat,
+  });
+  final String senderID;
+  final String receiverID;
+  final bool isNewChat;
 
   @override
   _NewMessageState createState() => _NewMessageState();
 }
 
 class _NewMessageState extends State<NewMessage> {
+  final _db = Firestore.instance;
   final _controller = TextEditingController();
   String _enteredMessage = '';
 
   void _sendMessage() async {
-    final user = await FirebaseAuth.instance.currentUser();
+    final String chatID = (widget.senderID.compareTo(widget.receiverID) > 0)
+        ? widget.senderID + widget.receiverID
+        : widget.receiverID + widget.senderID;
+
+    if (widget.isNewChat) {
+      final WriteBatch batch = _db.batch();
+
+      final DocumentReference userChats =
+          _db.collection('chats').document(chatID);
+      batch.setData(
+        userChats,
+        {
+          'senderID': widget.senderID,
+          'requestedChat': true,
+          'receiverID': widget.receiverID,
+          'primaryChat': false,
+          'messageAllowed': false,
+          'blocked': false,
+          'blockedBy': null,
+        },
+      );
+      _getUserName().then((senderUserName) {
+        CollectionReference chatsList =
+            _db.collection('users/${widget.senderID}/chats_list');
+        chatsList.add(
+          {
+            'username': senderUserName,
+            'receiverID': widget.receiverID,
+            'blocked': false,
+            'blockedBy': null,
+            'mute': false,
+          },
+        );
+
+        chatsList = _db.collection('users/${widget.receiverID}/chats_list');
+        chatsList.add(
+          {
+            'username': senderUserName,
+            'receiverID': widget.senderID,
+            'blocked': false,
+            'blockedBy': null,
+            'mute': false,
+          },
+        );
+      });
+
+      batch.commit();
+    }
+
     final Map<String, Object> message = {
       'text': _enteredMessage,
       'createdAt': Timestamp.now(),
-      'userId': user.uid,
+      'userId': widget.senderID,
     };
 
-    final String userID = user.uid;
-    final String chatID = (userID.compareTo(widget.toUserId) > 0)
-        ? userID + widget.toUserId
-        : widget.toUserId + userID;
-
-    final Firestore db = Firestore.instance;
-
-    final CollectionReference messagesCollection =
-        db.collection('chats/$chatID/messages')
-          ..add(
-            message,
-          );
+    _db.collection('chats/$chatID/messages')
+      ..add(
+        message,
+      );
 
     _controller.clear();
     setState(() {
       _enteredMessage = '';
     });
+  }
+
+  Future<String> _getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('username') ?? '';
   }
 
   @override
@@ -60,7 +112,7 @@ class _NewMessageState extends State<NewMessage> {
             children: <Widget>[
               IconButton(
                 icon: Icon(Icons.sentiment_satisfied),
-                onPressed: _enteredMessage.trim().isEmpty ? null : (){},
+                onPressed: _enteredMessage.trim().isEmpty ? null : () {},
               ),
               Expanded(
                 child: TextField(

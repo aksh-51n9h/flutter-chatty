@@ -36,10 +36,10 @@ class _AllChatsState extends State<AllChats> {
             return Center(child: CircularProgressIndicator());
           }
 
-          final String userId = userData.data.uid;
+          final String senderID = userData.data.uid;
           final Firestore db = Firestore.instance;
           final CollectionReference chatsListCollectionRef =
-              db.collection('users/$userId/chats_list');
+              db.collection('users/$senderID/chats_list');
 
           return StreamBuilder<QuerySnapshot>(
             stream: chatsListCollectionRef.snapshots(),
@@ -65,9 +65,15 @@ class _AllChatsState extends State<AllChats> {
                     child: ListTile(
                       leading: CircleAvatar(
                         backgroundColor: Colors.blueGrey[900],
-                        child: Image.network(
-                          userDocs[index]['imageUrl'],
-                          fit: BoxFit.cover,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: new DecorationImage(
+                              fit: BoxFit.cover,
+                              image:
+                                  new NetworkImage(userDocs[index]['imageUrl']),
+                            ),
+                          ),
                         ),
                       ),
                       title: Text(userDocs[index]['username']),
@@ -95,8 +101,11 @@ class _AllChatsState extends State<AllChats> {
                         return Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (ctx) => ChatScreen(
-                                userDocs[index]['receiverID'],
-                                userDocs[index]['username']),
+                              senderID: senderID,
+                              receiverID: userDocs[index]['receiverID'],
+                              receiverUserName: userDocs[index]['username'],
+                              isNewChat: false,
+                            ),
                           ),
                         );
                       },
