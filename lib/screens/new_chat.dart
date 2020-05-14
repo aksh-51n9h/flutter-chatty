@@ -14,9 +14,6 @@ class _NewChatState extends State<NewChat> {
 
   bool _isChatExist(String userID, List<DocumentSnapshot> docRef) {
     for (int index = 0; index < docRef.length; index++) {
-      print(userID);
-      print(docRef[index]['receiverID']);
-
       if (docRef[index]['receiverID'].compareTo(userID) == 0) {
         return true;
       }
@@ -29,7 +26,6 @@ class _NewChatState extends State<NewChat> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
         title: Text('New Chat'),
       ),
       body: FutureBuilder<FirebaseUser>(
