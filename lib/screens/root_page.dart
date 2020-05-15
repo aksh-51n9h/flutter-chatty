@@ -1,5 +1,4 @@
 import 'package:chatty/screens/widgets/auth/auth.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'all_chats.dart';
@@ -15,6 +14,7 @@ class RootPage extends StatefulWidget {
 class _RootPageState extends State<RootPage> {
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
   String _userId = '';
+  String _username = '';
 
   @override
   void initState() {
@@ -45,7 +45,7 @@ class _RootPageState extends State<RootPage> {
       case AuthStatus.LOGGED_IN:
         if (_userId.length > 0 && _userId != null) {
           return AllChats(
-            userID: _userId,
+            username: _username,
             auth: widget.auth,
             logoutCallback: logoutCallback,
           );
@@ -57,11 +57,12 @@ class _RootPageState extends State<RootPage> {
     }
   }
 
-  void loginCallback() {
+  void loginCallback(String username) {
     print('logincallback called');
     widget.auth.getCurrentUser().then((user) {
       setState(() {
         _userId = user.uid.toString();
+        _username = username;
       });
     });
     setState(() {
@@ -73,6 +74,7 @@ class _RootPageState extends State<RootPage> {
     setState(() {
       _authStatus = AuthStatus.NOT_LOGGED_IN;
       _userId = "";
+      _username = '';
     });
   }
 

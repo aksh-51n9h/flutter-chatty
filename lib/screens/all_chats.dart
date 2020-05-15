@@ -6,12 +6,11 @@ import '../screens/chat_screen.dart';
 import '../screens/new_chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import '../utils/utils.dart';
 
 class AllChats extends StatefulWidget {
-  AllChats({this.userID, this.auth, this.logoutCallback});
+  AllChats({this.username, this.auth, this.logoutCallback});
 
-  final String userID;
+  final String username;
   final BaseAuth auth;
   final VoidCallback logoutCallback;
   @override
@@ -20,13 +19,24 @@ class AllChats extends StatefulWidget {
 
 class _AllChatsState extends State<AllChats> {
   List<DocumentSnapshot> _allChats;
-  User sender;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: Text('All Chats \n ${sender?.fullname}'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              'All Chats',
+              style: Theme.of(context).textTheme.headline6,
+            ),
+            Text(
+              '${widget.username}',
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
+          ],
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.search),
@@ -50,14 +60,13 @@ class _AllChatsState extends State<AllChats> {
           }
 
           final user = userData.data;
-          
 
-          sender = User(
+          final User sender = User(
             fullname: user.displayName,
             email: user.email,
             imageUrl: user.photoUrl,
             uid: user.uid,
-            username: 'username',
+            username: widget.username,
           );
 
           final String senderID = sender.uid;
@@ -77,6 +86,16 @@ class _AllChatsState extends State<AllChats> {
 
               var allChats = chatsListSnapshot.data.documents;
               _allChats = allChats;
+
+              if (allChats.length == 0) {
+                return Center(
+                  child: Text(
+                    "Hello ${sender.username} ,\nStart a new chat",
+                    style: Theme.of(context).textTheme.headline4,
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }
 
               return ListView.builder(
                 itemCount: allChats.length,

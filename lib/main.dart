@@ -1,10 +1,7 @@
 import 'package:chatty/screens/root_page.dart';
 import 'package:chatty/screens/widgets/auth/auth.dart';
 
-import './screens/all_chats.dart';
 import 'package:flutter/material.dart';
-import './screens/auth_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 void main() {
   runApp(MyApp());

@@ -15,7 +15,7 @@ class AuthScreen extends StatefulWidget {
   AuthScreen({this.auth, this.loginCallback});
 
   final BaseAuth auth;
-  final VoidCallback loginCallback;
+  final Function(String username) loginCallback;
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
@@ -51,6 +51,7 @@ class _AuthScreenState extends State<AuthScreen> {
             );
 
             _saveUserLocal(sender);
+            widget.loginCallback(sender.username);
           }
         });
       } else {
@@ -95,8 +96,8 @@ class _AuthScreenState extends State<AuthScreen> {
         _saveUserLocal(sender);
       }
 
-      if (user.uid.length > 0 && user.uid != null && isLogin) {
-        widget.loginCallback();
+      if (user.uid.length > 0 && user.uid != null) {
+        widget.loginCallback(username);
       }
     } on PlatformException catch (error) {
       var message = "An error occured, please check your credentials!";
