@@ -1,4 +1,5 @@
 import 'package:chatty/screens/widgets/auth/auth.dart';
+import 'package:chatty/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 import 'all_chats.dart';
@@ -20,12 +21,16 @@ class _RootPageState extends State<RootPage> {
   void initState() {
     super.initState();
     widget.auth.getCurrentUser().then((user) {
-      setState(() {
-        if (user != null) {
-          _userId = user?.uid;
-        }
-        _authStatus =
-            user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+      getUsername().then((username) {
+        setState(() {
+          if (user != null) {
+            _userId = user?.uid;
+            _username = username;
+          }
+          _authStatus = user?.uid == null
+              ? AuthStatus.NOT_LOGGED_IN
+              : AuthStatus.LOGGED_IN;
+        });
       });
     });
   }

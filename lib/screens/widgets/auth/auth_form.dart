@@ -96,7 +96,7 @@ class _AuthFormState extends State<AuthForm> {
                     key: ValueKey('email'),
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
-                      if (value.isEmpty || !value.contains('@')) {
+                      if (value.isEmpty || !value.contains('@gmail.com')) {
                         return 'Invalid email address';
                       }
 

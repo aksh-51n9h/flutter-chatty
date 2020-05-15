@@ -1,3 +1,5 @@
+import 'package:chatty/screens/widgets/app_bar_title.dart';
+
 import '../models/user.dart';
 import '../screens/widgets/chat/messages.dart';
 import '../screens/widgets/chat/new_message.dart';
@@ -17,7 +19,10 @@ class ChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(receiver.username),
+        title: AppbarTitle(title: receiver.username, subtitle: receiver.fullname),
+        actions: <Widget>[
+          IconButton(icon: Icon(Icons.settings), onPressed: null),
+        ],
       ),
       body: Container(
         child: Column(
@@ -26,8 +31,8 @@ class ChatScreen extends StatelessWidget {
               child: Messages(receiver.uid),
             ),
             NewMessage(
-              sender:sender,
-              receiver:receiver,
+              sender: sender,
+              receiver: receiver,
               isNewChat: isNewChat,
             ),
           ],

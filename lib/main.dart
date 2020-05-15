@@ -13,10 +13,18 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chatty',
+      themeMode: ThemeMode.dark,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        primaryColor: Colors.white,
+        brightness: Brightness.light,
+        accentColor: Colors.blue[700],
+        // scaffoldBackgroundColor: Colors.black,
+      ),
+      darkTheme: ThemeData(
+        primarySwatch: Colors.blue,
+        accentColor: Colors.blue[700],
         brightness: Brightness.dark,
-        accentColor: Colors.blue[600],
         scaffoldBackgroundColor: Colors.black,
       ),
       home: RootPage(Auth()),

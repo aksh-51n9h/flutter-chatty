@@ -47,7 +47,8 @@ class MessageBubble extends StatelessWidget {
                 maxWidth: constraints.maxWidth * 0.625,
               ),
               decoration: BoxDecoration(
-                color: isMe ? Colors.blue[800] : Colors.blueGrey[700],
+                color:
+                    isMe ? Theme.of(context).accentColor : Colors.blueGrey[700],
                 borderRadius: isMe
                     ? BorderRadius.only(
                         topLeft: radius, topRight: radius, bottomLeft: radius)
@@ -70,7 +71,9 @@ class MessageBubble extends StatelessWidget {
               ),
               child: Text(
                 message,
-                style: TextStyle(fontSize: 16.0),
+                style: Theme.of(context).brightness == Brightness.light
+                    ? TextStyle(fontSize: 16.0, color: Colors.white)
+                    : TextStyle(fontSize: 16.0),
                 textAlign: TextAlign.left,
                 softWrap: true,
                 overflow: TextOverflow.clip,

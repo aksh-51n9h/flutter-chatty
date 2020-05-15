@@ -12,3 +12,9 @@ Future<User> getCurrentUser() async {
       imageUrl: prefs.getString('imageUrl'),
     );
   }
+
+
+  Future<String> getUsername() async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString('username');
+}
