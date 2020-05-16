@@ -1,4 +1,6 @@
-import '../screens/widgets/app_bar_title.dart';
+import 'package:animations/animations.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 import '../screens/widgets/auth/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -7,6 +9,8 @@ import '../screens/chat_screen.dart';
 import '../screens/new_chat.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+const double _fabDimension = 56.0;
 
 class AllChats extends StatefulWidget {
   AllChats({this.username, this.auth, this.logoutCallback});
@@ -20,6 +24,7 @@ class AllChats extends StatefulWidget {
 
 class _AllChatsState extends State<AllChats> {
   List<DocumentSnapshot> _allChats;
+
   @override
   Widget build(BuildContext context) {
     return _buildSliver();
@@ -93,7 +98,10 @@ class _AllChatsState extends State<AllChats> {
                           onPressed: null,
                         ),
                         IconButton(
-                          icon: Icon(Icons.exit_to_app),
+                          icon: Icon(
+                            Icons.exit_to_app,
+                            color: Theme.of(context).accentColor,
+                          ),
                           onPressed: () {
                             dispose();
                             widget.auth.signOut();
@@ -120,53 +128,22 @@ class _AllChatsState extends State<AllChats> {
                           imageUrl: user['imageUrl'],
                         );
 
-                        return Container(
-                          // margin: const EdgeInsets.symmetric(
-                          //   horizontal: 16,
-                          //   vertical: 4,
-                          // ),
-                          // color: Theme.of(context).primaryColor,
-                          child: ListTile(
-                            leading: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: Theme.of(context).primaryColor,
-                                  width: 3,
-                                ),
-                              ),
-                              padding: const EdgeInsets.all(4),
-                              child: CircleAvatar(
-                                backgroundColor: Colors.blueGrey[900],
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    image: new DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image:
-                                          new NetworkImage(receiver.imageUrl),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            trailing: IconButton(
-                              icon: Icon(Icons.panorama_fish_eye),
-                            ),
-                            title: Text(allChats[index]['username']),
-                            subtitle: Text('last message'),
-                            onTap: () {
-                              return Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (ctx) => ChatScreen(
-                                    sender: sender,
-                                    receiver: receiver,
-                                    isNewChat: false,
-                                  ),
-                                ),
-                              );
-                            },
+                        return OpenContainer(
+                          closedColor: Colors.black,
+                          transitionType: ContainerTransitionType.fade,
+                          closedBuilder: (ctx, openContainer) => ChatListTile(
+                              context: context,
+                              receiver: receiver,
+                              allChats: allChats,
+                              index: index,
+                              sender: sender,
+                              onTap: openContainer),
+                          openBuilder: (ctx, openConatiner) => ChatScreen(
+                            sender: sender,
+                            receiver: receiver,
+                            isNewChat: false,
                           ),
+                          tappable: false,
                         );
                       }, childCount: allChats.length),
                     )
@@ -177,15 +154,30 @@ class _AllChatsState extends State<AllChats> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (ctx) => NewChat(_allChats),
+      floatingActionButton: OpenContainer(
+        transitionType: ContainerTransitionType.fade,
+        openBuilder: (BuildContext context, VoidCallback _) {
+          return NewChat(_allChats);
+        },
+        closedElevation: 6.0,
+        closedShape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(_fabDimension / 2),
+          ),
+        ),
+        closedColor: Theme.of(context).colorScheme.secondary,
+        closedBuilder: (BuildContext context, VoidCallback openContainer) {
+          return SizedBox(
+            height: _fabDimension,
+            width: _fabDimension,
+            child: Center(
+              child: Icon(
+                Icons.create,
+                color: Theme.of(context).colorScheme.onSecondary,
+              ),
             ),
           );
         },
-        child: Icon(Icons.create),
       ),
     );
   }
@@ -214,6 +206,68 @@ class _AllChatsState extends State<AllChats> {
             },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class ChatListTile extends StatelessWidget {
+  const ChatListTile({
+    Key key,
+    @required this.context,
+    @required this.receiver,
+    @required this.allChats,
+    @required this.index,
+    @required this.sender,
+    @required this.onTap,
+  }) : super(key: key);
+
+  final BuildContext context;
+  final User receiver;
+  final List<DocumentSnapshot> allChats;
+  final int index;
+  final User sender;
+  final GestureTapCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: ListTile(
+        leading: Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Theme.of(context).primaryColor,
+              width: 3,
+            ),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: CircleAvatar(
+            backgroundColor: Colors.blueGrey[900],
+            child: CachedNetworkImage(
+              imageUrl: receiver.imageUrl,
+              imageBuilder: (context, imageProvider) => Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ),
+              fadeOutDuration: const Duration(seconds: 1),
+              fadeInDuration: const Duration(seconds: 1),
+              placeholder: (context, url) => CircularProgressIndicator(),
+              errorWidget: (context, url, error) => Icon(Icons.error),
+            ),
+          ),
+        ),
+        trailing: IconButton(
+          icon: Icon(Icons.panorama_fish_eye),
+        ),
+        title: Text(allChats[index]['username']),
+        subtitle: Text('last message'),
+        onTap: onTap,
       ),
     );
   }

@@ -66,9 +66,6 @@ class _NewChatState extends State<NewChat> {
                       imageUrl: user['imageUrl'],
                     );
 
-                    // print("Rec : ${receiver.map()}");
-                    // print("Sen : ${sender.map()}");
-
                     if ((receiver.uid.compareTo(sender.uid) != 0) &&
                         !_isChatExist(receiver)) {
                       return ListTile(
@@ -101,7 +98,7 @@ class _NewChatState extends State<NewChat> {
                         },
                       );
                     }
-                    return SizedBox();
+                    return const SizedBox();
                   });
             },
           );

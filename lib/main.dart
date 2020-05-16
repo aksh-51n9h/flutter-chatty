@@ -1,5 +1,5 @@
-import 'package:chatty/screens/root_page.dart';
-import 'package:chatty/screens/widgets/auth/auth.dart';
+import './screens/root_page.dart';
+import './screens/widgets/auth/auth.dart';
 
 import 'package:flutter/material.dart';
 
@@ -26,6 +26,11 @@ class MyApp extends StatelessWidget {
         accentColor: Colors.blue[700],
         brightness: Brightness.dark,
         scaffoldBackgroundColor: Colors.black,
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: <TargetPlatform, PageTransitionsBuilder>{
+            TargetPlatform.android: ZoomPageTransitionsBuilder(),
+          },
+        ),
       ),
       home: RootPage(Auth()),
     );
