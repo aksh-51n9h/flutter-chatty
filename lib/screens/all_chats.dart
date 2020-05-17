@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:chatty/blocs/chats_bloc.dart';
 
 import '../screens/widgets/auth/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -23,6 +24,7 @@ class AllChats extends StatefulWidget {
 }
 
 class _AllChatsState extends State<AllChats> {
+  
   List<DocumentSnapshot> _allChats;
 
   @override

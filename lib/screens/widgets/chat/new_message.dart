@@ -73,6 +73,8 @@ class _NewMessageState extends State<NewMessage> {
       batch.commit();
     }
 
+  
+
     final Map<String, Object> message = {
       'text': _enteredMessage,
       'createdAt': Timestamp.now(),

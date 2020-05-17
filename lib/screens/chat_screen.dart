@@ -1,4 +1,6 @@
-import 'package:chatty/screens/widgets/app_bar_title.dart';
+import '../blocs/chats_bloc.dart';
+import '../models/chat.dart';
+import '../screens/widgets/app_bar_title.dart';
 
 import '../models/user.dart';
 import '../screens/widgets/chat/messages.dart';
@@ -17,9 +19,12 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ChatsBloc chatsBloc = ChatsBloc(Chat(sender: sender, receiver: receiver));
+
     return Scaffold(
       appBar: AppBar(
-        title: AppbarTitle(title: receiver.username, subtitle: receiver.fullname),
+        title:
+            AppbarTitle(title: receiver.username, subtitle: receiver.fullname),
         actions: <Widget>[
           IconButton(icon: Icon(Icons.settings), onPressed: null),
         ],

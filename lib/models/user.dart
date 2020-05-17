@@ -10,11 +10,11 @@ class User {
     @required this.imageUrl,
   });
 
-  final String fullname;
-  final String username;
+  String fullname;
+  String username;
   final String uid;
-  final String email;
-  final String imageUrl;
+  String email;
+  String imageUrl;
   final Key key;
 
   Map<String, Object> map() {
@@ -27,3 +27,4 @@ class User {
     };
   }
 }
+
