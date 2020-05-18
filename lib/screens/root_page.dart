@@ -1,4 +1,4 @@
-import 'package:chatty/screens/widgets/auth/auth.dart';
+import '../widgets/auth/auth.dart';
 import 'package:chatty/utils/utils.dart';
 import 'package:flutter/material.dart';
 

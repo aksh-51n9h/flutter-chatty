@@ -1,5 +1,5 @@
 import 'package:animations/animations.dart';
-import 'package:chatty/screens/widgets/chat/message_bubble.dart';
+import 'package:chatty/widgets/chat/message_bubble.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,7 +24,7 @@ class Messages extends StatelessWidget {
             ? userID + toUserId
             : toUserId + userID;
 
-        return StreamBuilder(
+        return StreamBuilder<QuerySnapshot>(
           stream: Firestore.instance
               .collection('chats/$chatID/messages')
               .orderBy('createdAt', descending: true)
@@ -43,18 +43,9 @@ class Messages extends StatelessWidget {
               },
               child: chatsSnapshot.connectionState == ConnectionState.waiting
                   ? Center(child: CircularProgressIndicator())
-                  : ListView.builder(
-                      reverse: true,
-                      itemCount: chatsSnapshot.data.documents.length,
-                      itemBuilder: (ctx, index) => MessageBubble(
-                        chatsSnapshot.data.documents[index]['text'],
-                        chatsSnapshot.data.documents[index]['userId'] ==
-                            futureSnapshot.data.uid,
-                        chatsSnapshot.data.documents[index]['userId'],
-                        chatsSnapshot.data.documents[index]['createdAt'],
-                        key: ValueKey(
-                            chatsSnapshot.data.documents[index].documentID),
-                      ),
+                  : _MessageList(
+                      chatsSnapshot: chatsSnapshot,
+                      futureSnapshot: futureSnapshot,
                     ),
             );
             // if (chatsSnapshot.connectionState == ConnectionState.waiting) {
@@ -77,6 +68,33 @@ class Messages extends StatelessWidget {
           },
         );
       },
+    );
+  }
+}
+
+class _MessageList extends StatelessWidget {
+  const _MessageList({
+    this.chatsSnapshot,
+    this.futureSnapshot,
+    Key key,
+  }) : super(key: key);
+
+  final AsyncSnapshot<QuerySnapshot> chatsSnapshot;
+  final AsyncSnapshot<FirebaseUser> futureSnapshot;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      reverse: true,
+      itemCount: chatsSnapshot.data.documents.length,
+      itemBuilder: (ctx, index) => MessageBubble(
+        chatsSnapshot.data.documents[index]['text'],
+        chatsSnapshot.data.documents[index]['userId'] ==
+            futureSnapshot.data.uid,
+        chatsSnapshot.data.documents[index]['userId'],
+        chatsSnapshot.data.documents[index]['createdAt'],
+        key: ValueKey(chatsSnapshot.data.documents[index].documentID),
+      ),
     );
   }
 }

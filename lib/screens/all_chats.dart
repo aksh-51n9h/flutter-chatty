@@ -1,8 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:chatty/blocs/chats_bloc.dart';
 
-import '../screens/widgets/auth/auth.dart';
+import '../widgets/auth/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user.dart';
@@ -24,7 +23,6 @@ class AllChats extends StatefulWidget {
 }
 
 class _AllChatsState extends State<AllChats> {
-  
   List<DocumentSnapshot> _allChats;
 
   @override
@@ -140,13 +138,33 @@ class _AllChatsState extends State<AllChats> {
                               index: index,
                               sender: sender,
                               onTap: openContainer),
-                          openBuilder: (ctx, openConatiner) => ChatScreen(
-                            sender: sender,
-                            receiver: receiver,
-                            isNewChat: false,
-                          ),
+                          openBuilder: (ctx, openConatiner) {
+                            return ChatScreen(
+                              sender: sender,
+                              receiver: receiver,
+                              isNewChat: false,
+                            );
+                          },
                           tappable: false,
                         );
+
+                        // return ChatListTile(
+                        //     context: context,
+                        //     receiver: receiver,
+                        //     allChats: allChats,
+                        //     index: index,
+                        //     sender: sender,
+                        //     onTap: () {
+                        //       Navigator.of(context).push(
+                        //         MaterialPageRoute(
+                        //           builder: (_) => ChatScreen(
+                        //             sender: sender,
+                        //             receiver: receiver,
+                        //             isNewChat: false,
+                        //           ),
+                        //         ),
+                        //       );
+                        //     });
                       }, childCount: allChats.length),
                     )
                   ],

@@ -37,4 +37,9 @@ class ChatsBloc {
   StreamSink<Chat> get sendMessageSink => _sendMessageStreamController.sink;
 
   _sendMessage(Chat message) {}
+
+  void dispose() {
+    _messageListStreamController.close();
+    _sendMessageStreamController.close();
+  }
 }

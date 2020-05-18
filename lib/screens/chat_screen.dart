@@ -1,10 +1,8 @@
-import '../blocs/chats_bloc.dart';
-import '../models/chat.dart';
-import '../screens/widgets/app_bar_title.dart';
+import '../widgets/app_bar_title.dart';
 
 import '../models/user.dart';
-import '../screens/widgets/chat/messages.dart';
-import '../screens/widgets/chat/new_message.dart';
+import '../widgets/chat/messages.dart';
+import '../widgets/chat/new_message.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatelessWidget {
@@ -19,7 +17,6 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ChatsBloc chatsBloc = ChatsBloc(Chat(sender: sender, receiver: receiver));
 
     return Scaffold(
       appBar: AppBar(

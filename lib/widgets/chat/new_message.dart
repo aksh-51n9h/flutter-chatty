@@ -102,7 +102,7 @@ class _NewMessageState extends State<NewMessage> {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constrainst) {
-      print(constrainst.maxWidth * 0.08);
+      // print(constrainst.maxWidth * 0.08);
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         child: Container(
