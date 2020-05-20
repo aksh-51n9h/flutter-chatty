@@ -1,12 +1,13 @@
 import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/cupertino.dart';
 
 import '../models/chat.dart';
-import 'package:flutter/material.dart';
 
 class ChatsBloc {
-  ChatsBloc(Chat chat) {
+  final Chat chat;
+  ChatsBloc(this.chat) {
     db.collection('chats/${chat.chatID}/messages').snapshots().listen((event) {
       if (event.documents.isNotEmpty) {
         this._messages = event.documents;
@@ -26,10 +27,10 @@ class ChatsBloc {
       StreamController<List<DocumentSnapshot>>();
 
   final _sendMessageStreamController = StreamController<Chat>();
-
+  
   //getter
-  Stream<List<DocumentSnapshot>> get messageListStream =>
-      _messageListStreamController.stream;
+  Stream<QuerySnapshot> get messageListStream =>
+      db.collection('chats/${chat.chatID}/messages').snapshots();
 
   StreamSink<List<DocumentSnapshot>> get messageListSink =>
       _messageListStreamController.sink;

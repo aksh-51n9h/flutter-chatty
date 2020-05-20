@@ -1,42 +1,61 @@
+import 'package:chatty/widgets/picker/user_avatar_picker.dart';
 import 'package:flutter/material.dart';
 
-class AuthForm extends StatefulWidget {
-  AuthForm(this.submitFn, this.isLoading);
+class NewAuthForm extends StatefulWidget {
+  NewAuthForm(this.submitFn, this.isLoading);
 
   final bool isLoading;
-  final void Function(String fullname, String email, String username,
-      String password, bool isLoginForm, BuildContext ctx) submitFn;
+  final void Function(String fullName, String email, String username,
+      String password, bool isLogin, BuildContext ctx) submitFn;
 
   @override
-  _AuthFormState createState() => _AuthFormState();
+  _NewAuthFormState createState() => _NewAuthFormState();
 }
 
-class _AuthFormState extends State<AuthForm> {
+class _NewAuthFormState extends State<NewAuthForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoginForm = true;
-
   String _fullname = '';
   String _username = 'User';
   String _email = '';
   String _password = '';
 
+  void _trySubmit() {
+    final isValid = _formKey.currentState.validate();
+
+    FocusScope.of(context).unfocus();
+
+    if (isValid) {
+      _formKey.currentState.save();
+      widget.submitFn(_fullname, _email.trim(), _username.trim(), _password,
+          _isLoginForm, context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: LayoutBuilder(
-        builder: (ctx, constraints) {
-          return SingleChildScrollView(
-            child: Container(
-              padding: const EdgeInsets.all(16),
+    final bool _isLoading = widget.isLoading;
+
+    return LayoutBuilder(
+      builder: (ctx, constraints) {
+        if (_isLoading) return _buildLoading(constraints);
+
+        return Center(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              physics: BouncingScrollPhysics(),
               child: Form(
                 key: _formKey,
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    _buildUserAvatar(constraints),
-                    _buildUserDisplayName(context),
-                    if (_isLoginForm) _buildUserSignInInfo(context),
+                    if (_isLoginForm) _buildUserAvatar(constraints),
+                    if (!_isLoginForm) UserAvatarPicker(constraints),
+                    if (_isLoginForm) _buildUserDisplayName(context),
+                    _buildUserSignInInfo(context),
                     if (!_isLoginForm) _buildFullnameTextField(),
                     if (!_isLoginForm) _buildUsernameTextField(),
                     _buildUserEmailTextField(),
@@ -47,24 +66,28 @@ class _AuthFormState extends State<AuthForm> {
                 ),
               ),
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
-  void _trySubmit() {
-    final isValid = _formKey.currentState.validate();
-
-    FocusScope.of(context).unfocus();
-
-    if (isValid) {
-      _formKey.currentState.save();
-      widget.submitFn(_fullname, _email.trim(), _username.trim(),
-          _password, _isLoginForm, context);
-    }
+  Widget _buildLoading(BoxConstraints constraints) {
+    return Center(
+      child: Container(
+        width: constraints.maxWidth * 0.4,
+        height: constraints.maxHeight * 0.09,
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Please wait', style: Theme.of(context).textTheme.caption),
+            LinearProgressIndicator(),
+          ],
+        ),
+      ),
+    );
   }
-
 
   Widget _buildSumbitButton() {
     return Center(
@@ -109,6 +132,9 @@ class _AuthFormState extends State<AuthForm> {
           labelText: 'Password',
           suffixIcon: Icon(Icons.remove_red_eye),
         ),
+        onChanged: (value) {
+          this._password = value;
+        },
       ),
     );
   }
@@ -123,6 +149,9 @@ class _AuthFormState extends State<AuthForm> {
           isDense: true,
           labelText: 'Email address',
         ),
+        onChanged: (value) {
+          this._email = value;
+        },
       ),
     );
   }
@@ -177,7 +206,7 @@ class _AuthFormState extends State<AuthForm> {
         child: Text(
             _isLoginForm
                 ? 'Create new account'.toUpperCase()
-                : 'Already have account'.toUpperCase(),
+                : 'I already have an account'.toUpperCase(),
             style: Theme.of(context).textTheme.caption),
         onPressed: _changeState,
       ),

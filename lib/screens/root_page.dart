@@ -1,13 +1,15 @@
-import '../widgets/auth/auth.dart';
 import 'package:chatty/utils/utils.dart';
 import 'package:flutter/material.dart';
 
+import '../provider/authentication/auth.dart';
 import 'all_chats.dart';
 import 'auth_screen.dart';
 
 class RootPage extends StatefulWidget {
   RootPage(this.auth);
+
   final Auth auth;
+
   @override
   _RootPageState createState() => _RootPageState();
 }
@@ -37,6 +39,22 @@ class _RootPageState extends State<RootPage> {
 
   @override
   Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 400),
+      switchOutCurve: Curves.easeInBack,
+      switchInCurve: Curves.easeIn,
+      child: _authStatus == AuthStatus.LOGGED_IN
+          ? AllChats(
+              auth: widget.auth,
+              username: "ak__",
+              logoutCallback: logoutCallback,
+            )
+          : AuthScreen(
+              auth: widget.auth,
+              loginCallback: loginCallback,
+            ),
+    );
+
     switch (_authStatus) {
       case AuthStatus.NOT_DETERMINED:
         return buildWaitingScreen();

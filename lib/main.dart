@@ -1,5 +1,7 @@
+import 'package:chatty/screens/base_page.dart';
+
 import './screens/root_page.dart';
-import './widgets/auth/auth.dart';
+import './provider/authentication/auth.dart';
 
 import 'package:flutter/material.dart';
 
@@ -13,24 +15,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Chatty',
-      themeMode: ThemeMode.dark,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        primaryColor: Colors.white,
-        brightness: Brightness.light,
-        accentColor: Colors.blue[700],
-        // scaffoldBackgroundColor: Colors.black,
+      debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.system,
+      theme: ThemeData.from(colorScheme: ColorScheme.light()).copyWith(
+        primaryColor: Colors.blue[800],
       ),
-      darkTheme: ThemeData(
-        primarySwatch: Colors.blue,
-        accentColor: Colors.blue[700],
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: Colors.black,
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: <TargetPlatform, PageTransitionsBuilder>{
-            TargetPlatform.android: ZoomPageTransitionsBuilder(),
-          },
-        ),
+      darkTheme: ThemeData.from(colorScheme: ColorScheme.dark()).copyWith(
+        accentColor: Colors.blue[800],
       ),
       home: RootPage(Auth()),
     );

@@ -1,9 +1,10 @@
 import 'dart:io';
 
+import 'package:chatty/widgets/auth/new_auth_form.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user.dart';
-import '../widgets/auth/auth.dart';
+import '../provider/authentication/auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +25,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isLoading = false;
 
   void _submitAuthForm(String fullName, String email, String username,
-      String password, File userImage, bool isLogin, BuildContext ctx) async {
+      String password, bool isLogin, BuildContext ctx) async {
     final _auth = widget.auth;
     FirebaseUser user;
     try {
@@ -57,31 +58,31 @@ class _AuthScreenState extends State<AuthScreen> {
       } else {
         user = await _auth.signUp(email, password);
 
-        final StorageReference ref = FirebaseStorage.instance
-            .ref()
-            .child('users_images')
-            .child(user.uid + '.jpg');
+//        final StorageReference ref = FirebaseStorage.instance
+//            .ref()
+//            .child('users_images')
+//            .child(user.uid + '.jpg');
+//
+//        await ref.putFile(userImage).onComplete;
+//
+//        final imageUrl = await ref.getDownloadURL();
 
-        await ref.putFile(userImage).onComplete;
-
-        final imageUrl = await ref.getDownloadURL();
-
-        final UserUpdateInfo userUpdateInfo = UserUpdateInfo();
-        userUpdateInfo.displayName = fullName;
-        userUpdateInfo.photoUrl = imageUrl;
-
-        try {
-          user.updateProfile(userUpdateInfo);
-        } catch (error) {
-          print(error);
-        }
+//        final UserUpdateInfo userUpdateInfo = UserUpdateInfo();
+//        userUpdateInfo.displayName = fullName;
+//        userUpdateInfo.photoUrl = imageUrl;
+//
+//        try {
+//          user.updateProfile(userUpdateInfo);
+//        } catch (error) {
+//          print(error);
+//        }
 
         await Firestore.instance.collection('users').document(user.uid).setData(
           {
             'fullname': fullName,
             'username': username,
             'email': email,
-            'imageUrl': imageUrl,
+//            'imageUrl': imageUrl,
           },
         );
 
@@ -90,7 +91,7 @@ class _AuthScreenState extends State<AuthScreen> {
           username: username,
           email: email,
           uid: user.uid,
-          imageUrl: imageUrl,
+//          imageUrl: imageUrl,
         );
 
         _saveUserLocal(sender);
@@ -134,8 +135,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColorDark,
-      body: AuthForm(_submitAuthForm, _isLoading),
+            body: NewAuthForm(_submitAuthForm, _isLoading),
     );
   }
 }

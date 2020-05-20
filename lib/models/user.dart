@@ -7,7 +7,7 @@ class User {
     @required this.username,
     @required this.uid,
     @required this.email,
-    @required this.imageUrl,
+    this.imageUrl,
   });
 
   String fullname;

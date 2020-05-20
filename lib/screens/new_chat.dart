@@ -2,7 +2,6 @@ import 'package:chatty/models/user.dart';
 import 'package:chatty/screens/chat_screen.dart';
 import 'package:chatty/utils/utils.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class NewChat extends StatefulWidget {
@@ -16,7 +15,7 @@ class NewChat extends StatefulWidget {
 
 class _NewChatState extends State<NewChat> {
   final Firestore _db = Firestore.instance;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // final FirebaseAuth _auth = FirebaseAuth.instance;
 
   bool _isChatExist(User user) {
     for (int index = 0; index < widget.allChats.length; index++) {

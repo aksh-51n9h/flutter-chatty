@@ -1,7 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import '../widgets/auth/auth.dart';
+import '../provider/authentication/auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user.dart';
@@ -113,9 +113,9 @@ class _AllChatsState extends State<AllChats> {
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
                           (BuildContext ctx, int index) {
-                        final DocumentReference chatDocRef =
-                            chatsListCollectionRef
-                                .document(allChats[index].documentID);
+                        // final DocumentReference chatDocRef =
+                        //     chatsListCollectionRef
+                        //         .document(allChats[index].documentID);
 
                         var user = allChats[index];
 
@@ -283,6 +283,7 @@ class ChatListTile extends StatelessWidget {
           ),
         ),
         trailing: IconButton(
+          onPressed: (){},
           icon: Icon(Icons.panorama_fish_eye),
         ),
         title: Text(allChats[index]['username']),
