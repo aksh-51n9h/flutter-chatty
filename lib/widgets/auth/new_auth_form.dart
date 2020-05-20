@@ -1,18 +1,18 @@
 import 'package:chatty/widgets/picker/user_avatar_picker.dart';
 import 'package:flutter/material.dart';
 
-class NewAuthForm extends StatefulWidget {
-  NewAuthForm(this.submitFn, this.isLoading);
+class AuthForm extends StatefulWidget {
+  AuthForm(this.submitFn, this.isLoading);
 
   final bool isLoading;
   final void Function(String fullName, String email, String username,
       String password, bool isLogin, BuildContext ctx) submitFn;
 
   @override
-  _NewAuthFormState createState() => _NewAuthFormState();
+  _AuthFormState createState() => _AuthFormState();
 }
 
-class _NewAuthFormState extends State<NewAuthForm> {
+class _AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoginForm = true;
   String _fullname = '';
