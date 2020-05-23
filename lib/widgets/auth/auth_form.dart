@@ -36,39 +36,41 @@ class _AuthFormState extends State<AuthForm> {
   Widget build(BuildContext context) {
     final bool _isLoading = widget.isLoading;
 
-    return LayoutBuilder(
-      builder: (ctx, constraints) {
-        if (_isLoading) return _buildLoading(constraints);
+    return SafeArea(
+      child: LayoutBuilder(
+        builder: (ctx, constraints) {
+          if (_isLoading) return _buildLoading(constraints);
 
-        return Center(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (_isLoginForm) _buildUserAvatar(constraints),
-                    if (!_isLoginForm) UserAvatarPicker(constraints),
-                    if (_isLoginForm) _buildUserDisplayName(context),
-                    _buildUserSignInInfo(context),
-                    if (!_isLoginForm) _buildFullnameTextField(),
-                    if (!_isLoginForm) _buildUsernameTextField(),
-                    _buildUserEmailTextField(),
-                    _buildUserPasswordTextField(),
-                    _buildFormStateChangeButton(),
-                    _buildSumbitButton(),
-                  ],
+          return Center(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              child: SingleChildScrollView(
+                physics: BouncingScrollPhysics(),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_isLoginForm) _buildUserAvatar(constraints),
+                      if (!_isLoginForm) UserAvatarPicker(constraints),
+                      _buildUserDisplayName(context),
+                      _buildUserSignInInfo(context),
+                      if (!_isLoginForm) _buildFullnameTextField(),
+                      if (!_isLoginForm) _buildUsernameTextField(),
+                      _buildUserEmailTextField(),
+                      _buildUserPasswordTextField(),
+                      _buildFormStateChangeButton(),
+                      _buildSumbitButton(),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -189,11 +191,9 @@ class _AuthFormState extends State<AuthForm> {
         decoration: BoxDecoration(
           color: Colors.grey[300],
           shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.person,
-          size: constraints.maxHeight * 0.07,
-          color: Colors.grey[400],
+          image: DecorationImage(
+            image: AssetImage('assets/images/user_avatars/5.jpg'),
+          ),
         ),
       ),
     );

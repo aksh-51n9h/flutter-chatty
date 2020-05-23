@@ -8,10 +8,10 @@ class Chat {
     @required this.receiver,
   });
 
-  final User sender;
-  final User receiver;
+  final String sender;
+  final String receiver;
 
-  String get chatID => sender.uid.compareTo(receiver.uid) > 0
-      ? sender.uid + receiver.uid
-      : receiver.uid + sender.uid;
+  String get chatID => sender.compareTo(receiver) > 0
+      ? sender + receiver
+      : receiver + sender;
 }

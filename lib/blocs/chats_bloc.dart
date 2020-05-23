@@ -1,46 +1,38 @@
 import 'dart:async';
 
+import 'package:chatty/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 
 import '../models/chat.dart';
 
-class ChatsBloc {
-  final Chat chat;
+class ChatsBloc implements BaseBloc {
   ChatsBloc(this.chat) {
-    db.collection('chats/${chat.chatID}/messages').snapshots().listen((event) {
-      if (event.documents.isNotEmpty) {
-        this._messages = event.documents;
-        print(this._messages);
-      }
+    _firestore
+        .collection('chats/${chat.chatID}/messages')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .listen((event) {
+      _messagesSink
+          .add(event.documents.map((e) => Message.fromJson(e.data)).toList());
     });
-
-    _messageListStreamController.add(this._messages);
-
-    _sendMessageStreamController.stream.listen(_sendMessage);
   }
 
-  List<DocumentSnapshot> _messages;
-  final Firestore db = Firestore.instance;
+  final Chat chat;
+  final Firestore _firestore = Firestore.instance;
+  List<DocumentSnapshot> _messages = [];
 
-  final _messageListStreamController =
-      StreamController<List<DocumentSnapshot>>();
+  final _messagesStreamController = StreamController<List<Message>>();
 
-  final _sendMessageStreamController = StreamController<Chat>();
-  
-  //getter
-  Stream<QuerySnapshot> get messageListStream =>
-      db.collection('chats/${chat.chatID}/messages').snapshots();
+  StreamSink<List<Message>> get _messagesSink => _messagesStreamController.sink;
 
-  StreamSink<List<DocumentSnapshot>> get messageListSink =>
-      _messageListStreamController.sink;
+  Stream<List<Message>> get messagesStream => _messagesStreamController.stream;
 
-  StreamSink<Chat> get sendMessageSink => _sendMessageStreamController.sink;
-
-  _sendMessage(Chat message) {}
-
+  @override
   void dispose() {
-    _messageListStreamController.close();
-    _sendMessageStreamController.close();
+    _messagesStreamController.close();
   }
+}
+
+abstract class BaseBloc {
+  void dispose();
 }

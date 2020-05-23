@@ -1,4 +1,6 @@
+import 'package:chatty/screens/contacts_list.dart';
 import 'package:chatty/utils/utils.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../provider/authentication/auth.dart';
@@ -16,6 +18,7 @@ class RootPage extends StatefulWidget {
 
 class _RootPageState extends State<RootPage> {
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
+  FirebaseUser _user;
   String _userId = '';
   String _username = '';
 
@@ -26,6 +29,7 @@ class _RootPageState extends State<RootPage> {
       getUsername().then((username) {
         setState(() {
           if (user != null) {
+            _user = user;
             _userId = user?.uid;
             _username = username;
           }
@@ -44,11 +48,12 @@ class _RootPageState extends State<RootPage> {
       switchOutCurve: Curves.easeInBack,
       switchInCurve: Curves.easeIn,
       child: _authStatus == AuthStatus.LOGGED_IN
-          ? AllChats(
-              auth: widget.auth,
-              username: "ak__",
-              logoutCallback: logoutCallback,
-            )
+          ? ContactList(_userId, widget.auth, logoutCallback)
+          // ? AllChats(
+          //     auth: widget.auth,
+          //     username: "ak__",
+          //     logoutCallback: logoutCallback,
+          //   )
           : AuthScreen(
               auth: widget.auth,
               loginCallback: loginCallback,

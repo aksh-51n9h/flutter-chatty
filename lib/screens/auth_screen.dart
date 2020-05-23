@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:chatty/widgets/auth/new_auth_form.dart';
+import 'package:chatty/widgets/auth/auth_form.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/user.dart';

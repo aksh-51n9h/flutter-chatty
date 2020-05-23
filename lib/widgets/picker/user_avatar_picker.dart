@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserAvatarPicker extends StatefulWidget {
@@ -12,11 +13,14 @@ class UserAvatarPicker extends StatefulWidget {
 class _UserAvatarPickerState extends State<UserAvatarPicker> {
   List<Widget> _avatarList;
   PageController _pageController;
+  ScrollController _scrollController;
+  double offset = 0;
 
   @override
   void initState() {
-    _avatarList = List.generate(
-        10, (index) => buildCircleAvatar(Colors.primaries[index]));
+    _avatarList = List.generate(7, (index) => _buildCircleAvatar(index));
+
+    _scrollController = ScrollController();
 
     _pageController = PageController(
       initialPage: 1,
@@ -27,29 +31,53 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
 
   @override
   Widget build(BuildContext context) {
+    final int itemSize = (widget.constraints.maxHeight * 0.15).floor();
     return Center(
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
+        duration: const Duration(milliseconds: 300),
         height: widget.constraints.maxHeight * 0.15,
-        width: widget.constraints.maxHeight * 0.15,
-        child: PageView(
-          physics: BouncingScrollPhysics(),
-          controller: _pageController,
-          children: _avatarList,
+//        width: widget.constraints.maxHeight * 0.15,
+        child: GestureDetector(
+          onHorizontalDragEnd: (details) {
+            if (!_scrollController.position.outOfRange) {
+              if (details.primaryVelocity > 0) {
+                offset = _scrollController.offset - itemSize;
+              } else if (details.primaryVelocity < 0) {
+                offset = _scrollController.offset + itemSize;
+              }
+              print((widget.constraints.maxWidth/itemSize).floor());
+              _scrollController.animateTo(
+                offset,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.bounceOut,
+              );
+            }
+          },
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            physics: NeverScrollableScrollPhysics(),
+            controller: _scrollController,
+            children: _avatarList,
+            itemExtent: itemSize*1.0,
+          ),
         ),
       ),
     );
   }
 
-  Widget buildCircleAvatar(Color color) {
-    return Padding(
-      padding: const EdgeInsets.all(4.0),
-      child: CircleAvatar(
-        backgroundColor: color,
-        child: Icon(
-          Icons.person,
-          size: widget.constraints.maxHeight * 0.07,
-          color: Colors.white30,
+  Widget _buildCircleAvatar(int i) {
+    return Center(
+      child: Container(
+//        duration: const Duration(milliseconds: 300),
+        margin: const EdgeInsets.all(8),
+        height: widget.constraints.maxHeight * 0.11,
+        width: widget.constraints.maxHeight * 0.11,
+        decoration: BoxDecoration(
+          color: Colors.grey[300],
+          shape: BoxShape.circle,
+          image: DecorationImage(
+            image: AssetImage('assets/images/user_avatars/${2 * i + 1}.jpg'),
+          ),
         ),
       ),
     );
