@@ -14,7 +14,7 @@ class AuthForm extends StatefulWidget {
 
 class _AuthFormState extends State<AuthForm> {
   final _formKey = GlobalKey<FormState>();
-  bool _isLoginForm = true;
+  bool _isLoginForm = !true;
   String _fullname = '';
   String _username = 'User';
   String _email = '';
