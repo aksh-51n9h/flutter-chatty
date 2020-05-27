@@ -12,28 +12,43 @@ class UserAvatarPicker extends StatefulWidget {
 }
 
 class _UserAvatarPickerState extends State<UserAvatarPicker> {
+  ///[ScrollController] that controls the swipe movement of the avatar list.
   ScrollController _scrollController;
+
+  ///The offset of the list. Default value is '0.0'.
   double _offset = 0;
+
+  ///Check whether first list item is slected. Default value is 'true'.
   bool _isAtFirst = true;
+
+  ///Check whether last list item is slected. Default value is 'false'.
   bool _isAtLast = false;
 
-  int currentSelection = 0;
+  ///The current selction of the list item, where '0' is the default.
+  int _currentSelection = 0;
 
   @override
   void initState() {
+    ///Initializing scroll controller with [initialScrollOffset = _offset], where default value of [_offset] is '0.0' 
     _scrollController = ScrollController(
-      initialScrollOffset: 0.0,
-      keepScrollOffset: false,
+      initialScrollOffset: _offset,
     );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    ///The number of list items that will be visible on the screen.
     const int numberOfItemsOnScreen = 3;
+
+    ///The total number of avatars.
     const int totalAvatars = 5;
+
+    ///Dimensions of one list item.
     final double itemSize =
         (widget.constraints.maxHeight * 0.15).floorToDouble();
+
+    ///The number of blank list item required to adjust the total number of avatars.
     final int numberOfSpaces = (numberOfItemsOnScreen / 2).floor();
 
     return Center(
@@ -56,9 +71,10 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
               );
 
               setState(() {
-                currentSelection = (_offset / itemSize).floor();
+                _currentSelection = (_offset / itemSize).floor();
                 _isAtFirst = _offset == 0.0;
-                _isAtLast = _offset >= _scrollController.position.maxScrollExtent;
+                _isAtLast =
+                    _offset >= _scrollController.position.maxScrollExtent;
               });
             }
           },
@@ -72,7 +88,7 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
                 );
               }
               return UserAvatar(
-                isSelected: currentSelection == index,
+                isSelected: _currentSelection == index,
                 constraints: widget.constraints,
                 assetPath: 'assets/images/user_avatars/${index + 1}.jpg',
               );
