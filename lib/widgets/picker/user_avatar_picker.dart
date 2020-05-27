@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:chatty/widgets/extras/blank.dart';
+import 'package:chatty/widgets/picker/user_avatar_item.dart';
 import 'package:flutter/material.dart';
 
 class UserAvatarPicker extends StatefulWidget {
@@ -12,9 +13,9 @@ class UserAvatarPicker extends StatefulWidget {
 
 class _UserAvatarPickerState extends State<UserAvatarPicker> {
   ScrollController _scrollController;
-  double offset = 0;
-  bool isAtFirst = true;
-  bool isAtLast = false;
+  double _offset = 0;
+  bool _isAtFirst = true;
+  bool _isAtLast = false;
 
   int currentSelection = 0;
 
@@ -29,98 +30,61 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final int itemSize = (widget.constraints.maxHeight * 0.15).floor();
-    final int numberOfItemsOnScreen =
-        (widget.constraints.maxWidth / itemSize).floor();
+    const int numberOfItemsOnScreen = 3;
+    const int totalAvatars = 5;
+    final double itemSize =
+        (widget.constraints.maxHeight * 0.15).floorToDouble();
     final int numberOfSpaces = (numberOfItemsOnScreen / 2).floor();
-    final int totalAvatars = 5;
 
     return Center(
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        height: widget.constraints.maxHeight * 0.15,
-        width: numberOfItemsOnScreen * itemSize.toDouble(),
+      child: Container(
+        height: itemSize,
+        width: numberOfItemsOnScreen * itemSize,
         child: GestureDetector(
           onHorizontalDragEnd: (details) {
-            if (offset <= _scrollController.position.maxScrollExtent) {
-              if (!isAtFirst && details.primaryVelocity > 1e-12) {
-                offset = _scrollController.offset - itemSize;
-              } else if (!isAtLast && details.primaryVelocity < 1e-12) {
-                offset = _scrollController.offset + itemSize;
+            if (_offset <= _scrollController.position.maxScrollExtent) {
+              if (!_isAtFirst && details.primaryVelocity > 1e-12) {
+                _offset = _scrollController.offset - itemSize;
+              } else if (!_isAtLast && details.primaryVelocity < 1e-12) {
+                _offset = _scrollController.offset + itemSize;
               }
 
               _scrollController.animateTo(
-                offset,
+                _offset,
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.bounceOut,
               );
 
               setState(() {
-                currentSelection = (offset / itemSize).floor();
-                isAtFirst = offset == 0.0;
-                isAtLast = offset >= _scrollController.position.maxScrollExtent;
+                currentSelection = (_offset / itemSize).floor();
+                _isAtFirst = _offset == 0.0;
+                _isAtLast = _offset >= _scrollController.position.maxScrollExtent;
               });
             }
           },
           child: ListView.builder(
             itemBuilder: (ctx, index) {
-              if (index < numberOfSpaces) {
-                return _buildSpace();
+              if (index < numberOfSpaces ||
+                  index >= totalAvatars + numberOfSpaces) {
+                return Blank(
+                  height: itemSize,
+                  width: itemSize,
+                );
               }
-              if (index >= totalAvatars + numberOfSpaces) {
-                return _buildSpace();
-              }
-              return _buildCircleAvatar(index - numberOfSpaces);
+              return UserAvatar(
+                isSelected: currentSelection == index,
+                constraints: widget.constraints,
+                assetPath: 'assets/images/user_avatars/${index + 1}.jpg',
+              );
             },
             itemCount: totalAvatars + (2 * numberOfSpaces),
             scrollDirection: Axis.horizontal,
             physics: NeverScrollableScrollPhysics(),
             controller: _scrollController,
-            itemExtent: itemSize.toDouble(),
+            itemExtent: itemSize,
           ),
         ),
       ),
     );
   }
-
-  Widget _buildSpace() {
-    return Container(
-      margin: const EdgeInsets.all(8),
-    );
-  }
-
-  Widget _buildCircleAvatar(int i) {
-    bool isSelected = currentSelection == i;
-    final double containerSize = isSelected
-        ? widget.constraints.maxHeight * 0.11
-        : widget.constraints.maxHeight * 0.07;
-    return Center(
-      child: Container(
-//        duration: const Duration(milliseconds: 300),
-        margin: const EdgeInsets.all(8),
-        height: containerSize,
-        width: containerSize,
-        foregroundDecoration: !isSelected
-            ? BoxDecoration(
-                color: Colors.black.withAlpha(98),
-                shape: BoxShape.circle,
-              )
-            : null,
-        decoration: BoxDecoration(
-          color: Colors.grey[300],
-          shape: BoxShape.circle,
-          image: DecorationImage(
-            image: AssetImage('assets/images/user_avatars/${i + 1}.jpg'),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ListItem<T> {
-  bool isSelected = false;
-  final T data;
-
-  ListItem({@required this.data});
 }

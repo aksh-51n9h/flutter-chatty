@@ -34,9 +34,6 @@ class _ContactListState extends State<ContactList> {
               );
             }
 
-            print('contacts stream...');
-//            bool v= false;
-
             if (snapshot.hasData) {
               return CustomScrollView(
                 slivers: [
@@ -46,8 +43,7 @@ class _ContactListState extends State<ContactList> {
                       IconButton(
                         icon: Icon(Icons.search),
                         onPressed: () {
-                          widget.auth.signOut();
-                          widget.logOutCallback();
+                          showSearch(context: context, delegate: null);
                         },
                       ),
                       IconButton(
@@ -87,7 +83,8 @@ class _ContactListState extends State<ContactList> {
             color: Colors.grey[300],
             shape: BoxShape.circle,
             image: DecorationImage(
-              image: AssetImage('assets/images/user_avatars/${contact.username.length%4*2+1}.jpg'),
+              image: AssetImage(
+                  'assets/images/user_avatars/${contact.username.length % 4 * 2 + 1}.jpg'),
             ),
           ),
         ),
