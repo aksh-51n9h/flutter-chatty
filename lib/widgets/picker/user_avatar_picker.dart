@@ -29,7 +29,7 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
 
   @override
   void initState() {
-    ///Initializing scroll controller with [initialScrollOffset = _offset], where default value of [_offset] is '0.0' 
+    ///Initializing scroll controller with [initialScrollOffset = _offset], where default value of [_offset] is '0.0'
     _scrollController = ScrollController(
       initialScrollOffset: _offset,
     );
@@ -56,20 +56,28 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
         height: itemSize,
         width: numberOfItemsOnScreen * itemSize,
         child: GestureDetector(
+          ///[details] stores the drag deatils and distinguish between left swipe or right swipe.
           onHorizontalDragEnd: (details) {
+
+            ///Checks whether list further can be scrolled or not using [_scrollController.position.maxScrollExtent].
             if (_offset <= _scrollController.position.maxScrollExtent) {
+              ///If [_isAtFirst] value is 'false' i.e. the first list item is not selected then allow left swipe. 
               if (!_isAtFirst && details.primaryVelocity > 1e-12) {
                 _offset = _scrollController.offset - itemSize;
-              } else if (!_isAtLast && details.primaryVelocity < 1e-12) {
+              } 
+              ///If [_isAtLast] value is 'false' i.e. the last list item is not selected then allow right swipe.
+              else if (!_isAtLast && details.primaryVelocity < 1e-12) {
                 _offset = _scrollController.offset + itemSize;
               }
 
+              ///[_scrollController] moves the list with the new value of [_offset].
               _scrollController.animateTo(
                 _offset,
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.bounceOut,
               );
 
+              ///Update the [_currentSelection], [_isAtFirst] and [_isAtLast].
               setState(() {
                 _currentSelection = (_offset / itemSize).floor();
                 _isAtFirst = _offset == 0.0;
@@ -78,6 +86,10 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
               });
             }
           },
+
+          ///[ListView.builder] is used to build list items.
+          ///[NeverScrollableScrollPhysics] is used so that list can be controlled using [GestureDetector]
+          ///[itemExtent] is equal to the [itemSize]
           child: ListView.builder(
             itemBuilder: (ctx, index) {
               if (index < numberOfSpaces ||
@@ -88,6 +100,7 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
                 );
               }
               return UserAvatar(
+                ///Decides whether the current item is selected or not.
                 isSelected: _currentSelection == index,
                 constraints: widget.constraints,
                 assetPath: 'assets/images/user_avatars/${index + 1}.jpg',
