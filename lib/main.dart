@@ -7,9 +7,10 @@ void main() {
   runApp(MyApp());
 }
 
+// This widget is the root of your application.
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
-  final Auth _auth = Auth();
+  ///Holds an instance of [Auth] class.
+  final Auth _auth = Auth.getInstance();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData.from(colorScheme: ColorScheme.dark()).copyWith(
         accentColor: Colors.blue[800],
       ),
-      home: RootPage(_auth),
+      home: BasePage(_auth),
     );
   }
 }

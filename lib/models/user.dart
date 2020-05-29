@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 class User {
   User({
-    this.key,
     @required this.fullname,
     @required this.username,
     @required this.uid,
@@ -15,16 +14,24 @@ class User {
   final String uid;
   String email;
   String imageUrl;
-  final Key key;
 
-  Map<String, Object> map() {
+  Map<String, dynamic> toJson() {
     return {
-      'name': this.fullname,
-      'username': this.username,
       'uid': this.uid,
+      'fullname': this.fullname,
+      'username': this.username,
       'email': this.email,
       'imageUrl': this.imageUrl,
     };
   }
-}
 
+  factory User.fromJson(Map<String, dynamic> json) {
+    return new User(
+      uid: json['uid'],
+      fullname: json['fullname'],
+      email: json['email'],
+      username: json['username'],
+      imageUrl: json['imageUrl'],
+    );
+  }
+}

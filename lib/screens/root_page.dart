@@ -1,3 +1,5 @@
+import 'package:chatty/provider/account_manager/account.dart';
+
 import '../screens/contacts_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -6,20 +8,19 @@ import '../provider/authentication/auth.dart';
 import 'auth_screen.dart';
 
 ///This widget is the root page of the app.
-///It decides whether navigate to [contact_list.dart] or [auth_form.dart].
-class RootPage extends StatefulWidget {
-  RootPage(this.auth);
+///It decides whether navigate to [contact_list.dart]
+///or [auth_form.dart] based on authentication status.
+class BasePage extends StatefulWidget {
+  BasePage(this.auth);
 
   final Auth auth;
 
   @override
-  _RootPageState createState() => _RootPageState();
+  _BasePageState createState() => _BasePageState();
 }
 
-class _RootPageState extends State<RootPage> {
-  bool _isFirstTime = true;
-
-  ///Authentication status of the user. Default value is [AAuthStatus.NOT_DETERMINED].
+class _BasePageState extends State<BasePage> {
+  ///Authentication status of the user. Default value is [AuthStatus.NOT_DETERMINED].
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
 
   ///This is used to store an instance of logged in user.
@@ -31,21 +32,30 @@ class _RootPageState extends State<RootPage> {
   @override
   void initState() {
     super.initState();
-    widget.auth.getCurrentUser().then((user) {
+    if (widget.auth.isFirstTime) {
       setState(() {
-        if (user != null) {
-          _user = user;
-        }
-        _authStatus =
-            user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
+        _authStatus = AuthStatus.NOT_LOGGED_IN;
       });
-    }).catchError((error) {
-      print(error);
-    }).whenComplete(() {
-
-    });
+    } else {
+      widget.auth.getCurrentUser().then((user) {
+        setState(() {
+          if (user != null) {
+            _user = user;
+          }
+          _authStatus = user?.uid == null
+              ? AuthStatus.NOT_LOGGED_IN
+              : AuthStatus.LOGGED_IN;
+        });
+      }).catchError((error) {
+        print(error);
+      }).whenComplete(() {});
+    }
   }
 
+  ///Returns screen based on [_authStatus].
+  ///If [_authStatus] is 'AuthStatus.LOGGED_IN' then it will switch to [ContactList].
+  ///If [_authStatus] is 'AuthStatus.NOT_LOGGED_IN' then it will switch to [AuthScreen].
+  ///[AnimatedSwitcher] is used to provide switch transition between two screens.
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
@@ -61,6 +71,8 @@ class _RootPageState extends State<RootPage> {
     );
   }
 
+  ///This function is called when user logged in and
+  ///set [_authStatus] value to 'AuthStatus.LOGGED_IN'.
   void loginCallback() {
     widget.auth.getCurrentUser().then((user) {
       setState(() {
@@ -72,6 +84,8 @@ class _RootPageState extends State<RootPage> {
     });
   }
 
+  ///This function is called when user log out and
+  ///set [_authStatus] value to 'AuthStatus.NOT_LOGGED_IN'.
   void logoutCallback() {
     setState(() {
       _authStatus = AuthStatus.NOT_LOGGED_IN;

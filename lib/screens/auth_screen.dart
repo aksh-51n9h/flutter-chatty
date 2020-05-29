@@ -11,48 +11,52 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+///This is authentication screen.
 class AuthScreen extends StatefulWidget {
   AuthScreen({this.auth, this.loginCallback});
 
-  final BaseAuth auth;
+  final Auth auth;
   final Function loginCallback;
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  ///Holds laoding state of the authentication process. Default value is [false].
   bool _isLoading = false;
 
-  void _submitAuthForm(String fullName, String email, String username,
+  void _submitAuthForm(String fullname, String email, String username,
       String password, bool isLogin, BuildContext ctx) async {
     final _auth = widget.auth;
     FirebaseUser user;
     try {
+      ///As authentication process starts [_isLoading] is set to 'true'.
       setState(() {
         _isLoading = true;
       });
 
       if (isLogin) {
         user = await _auth.signIn(email, password);
+
+        
+
         final String userID = user.uid;
         final DocumentReference userDocs =
             Firestore.instance.collection('users').document(userID);
 
         userDocs.get().then((user) {
-          if (user.exists) {
-            final userData = user.data;
+          final userData = user.data;
 
-            final User sender = User(
-              fullname: userData['fullname'],
-              username: userData['username'],
-              uid: userID,
-              email: userData['email'],
-              imageUrl: userData['imageUrl'],
-            );
+          final User sender = User(
+            fullname: userData['fullname'],
+            username: userData['username'],
+            uid: userID,
+            email: userData['email'],
+            imageUrl: userData['imageUrl'],
+          );
 
-            _saveUserLocal(sender);
-            widget.loginCallback(sender.username);
-          }
+          _saveUserLocal(sender);
+          widget.loginCallback(sender.username);
         });
       } else {
         user = await _auth.signUp(email, password);
@@ -78,7 +82,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
         await Firestore.instance.collection('users').document(user.uid).setData(
           {
-            'fullname': fullName,
+            'fullname': fullname,
             'username': username,
             'email': email,
 //            'imageUrl': imageUrl,
@@ -86,7 +90,7 @@ class _AuthScreenState extends State<AuthScreen> {
         );
 
         final User sender = User(
-          fullname: fullName,
+          fullname: fullname,
           username: username,
           email: email,
           uid: user.uid,
@@ -126,7 +130,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _saveUserLocal(User sender) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    sender.map().forEach((key, value) {
+    sender.toJson().forEach((key, value) {
       prefs.setString(key, value);
     });
   }
@@ -134,7 +138,7 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            body: AuthForm(_submitAuthForm, _isLoading),
+      body: AuthForm(_submitAuthForm, _isLoading),
     );
   }
 }

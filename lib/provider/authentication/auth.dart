@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'package:chatty/models/user.dart';
+import 'package:chatty/provider/account_manager/account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+///This is an interface for [Auth] class.
 abstract class BaseAuth {
   Future<FirebaseUser> signIn(String email, String password);
 
@@ -16,7 +19,29 @@ abstract class BaseAuth {
 }
 
 class Auth implements BaseAuth {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+  ///Holds an instance of [Auth].
+  static Auth _instance;
+
+  ///Hols an instance of [FirebaseAuth].
+  FirebaseAuth _firebaseAuth;
+
+  ///Hols an instance of [AccountManager].
+  AccountManager _accountManager;
+
+  ///This is an internal constructor used when [Auth] is instantiated.
+  Auth._internal() {
+    _firebaseAuth = FirebaseAuth.instance;
+    _accountManager = AccountManager.getInstance();
+  }
+
+  ///This function is used to provide an instance of a [Auth].
+  static Auth getInstance() {
+    if (_instance == null) {
+      return Auth._internal();
+    }
+
+    return _instance;
+  }
 
   Future<FirebaseUser> signIn(String email, String password) async {
     AuthResult result = await _firebaseAuth.signInWithEmailAndPassword(
@@ -50,6 +75,10 @@ class Auth implements BaseAuth {
     FirebaseUser user = await _firebaseAuth.currentUser();
     return user.isEmailVerified;
   }
+
+  bool get isFirstTime => _accountManager.isFirstTime();
+
+  void saveUser(User user) => _accountManager.saveUser(user);
 }
 
 enum AuthStatus {
