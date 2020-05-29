@@ -15,7 +15,7 @@ class AuthScreen extends StatefulWidget {
   AuthScreen({this.auth, this.loginCallback});
 
   final BaseAuth auth;
-  final Function(String username) loginCallback;
+  final Function loginCallback;
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }

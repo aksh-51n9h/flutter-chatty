@@ -1,5 +1,3 @@
-import 'package:chatty/screens/base_page.dart';
-
 import './screens/root_page.dart';
 import './provider/authentication/auth.dart';
 
@@ -11,6 +9,8 @@ void main() {
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
+  final Auth _auth = Auth();
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData.from(colorScheme: ColorScheme.dark()).copyWith(
         accentColor: Colors.blue[800],
       ),
-      home: RootPage(Auth()),
+      home: RootPage(_auth),
     );
   }
 }

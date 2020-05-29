@@ -1,12 +1,12 @@
-import 'package:chatty/screens/contacts_list.dart';
-import 'package:chatty/utils/utils.dart';
+import '../screens/contacts_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../provider/authentication/auth.dart';
-import 'all_chats.dart';
 import 'auth_screen.dart';
 
+///This widget is the root page of the app.
+///It decides whether navigate to [contact_list.dart] or [auth_form.dart].
 class RootPage extends StatefulWidget {
   RootPage(this.auth);
 
@@ -17,8 +17,14 @@ class RootPage extends StatefulWidget {
 }
 
 class _RootPageState extends State<RootPage> {
+  bool _isFirstTime = true;
+
+  ///Authentication status of the user. Default value is [AAuthStatus.NOT_DETERMINED].
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
+
+  ///This is used to store an instance of logged in user.
   FirebaseUser _user;
+
   String _userId = '';
   String _username = '';
 
@@ -26,18 +32,17 @@ class _RootPageState extends State<RootPage> {
   void initState() {
     super.initState();
     widget.auth.getCurrentUser().then((user) {
-      getUsername().then((username) {
-        setState(() {
-          if (user != null) {
-            _user = user;
-            _userId = user?.uid;
-            _username = username;
-          }
-          _authStatus = user?.uid == null
-              ? AuthStatus.NOT_LOGGED_IN
-              : AuthStatus.LOGGED_IN;
-        });
+      setState(() {
+        if (user != null) {
+          _user = user;
+        }
+        _authStatus =
+            user?.uid == null ? AuthStatus.NOT_LOGGED_IN : AuthStatus.LOGGED_IN;
       });
+    }).catchError((error) {
+      print(error);
+    }).whenComplete(() {
+
     });
   }
 
@@ -49,48 +54,17 @@ class _RootPageState extends State<RootPage> {
       switchInCurve: Curves.easeIn,
       child: _authStatus == AuthStatus.LOGGED_IN
           ? ContactList(_userId, widget.auth, logoutCallback)
-          // ? AllChats(
-          //     auth: widget.auth,
-          //     username: "ak__",
-          //     logoutCallback: logoutCallback,
-          //   )
           : AuthScreen(
               auth: widget.auth,
               loginCallback: loginCallback,
             ),
     );
-
-    switch (_authStatus) {
-      case AuthStatus.NOT_DETERMINED:
-        return buildWaitingScreen();
-        break;
-      case AuthStatus.NOT_LOGGED_IN:
-        return AuthScreen(
-          auth: widget.auth,
-          loginCallback: loginCallback,
-        );
-        break;
-      case AuthStatus.LOGGED_IN:
-        if (_userId.length > 0 && _userId != null) {
-          return AllChats(
-            username: _username,
-            auth: widget.auth,
-            logoutCallback: logoutCallback,
-          );
-        } else
-          return buildWaitingScreen();
-        break;
-      default:
-        return buildWaitingScreen();
-    }
   }
 
-  void loginCallback(String username) {
-    print('logincallback called');
+  void loginCallback() {
     widget.auth.getCurrentUser().then((user) {
       setState(() {
         _userId = user.uid.toString();
-        _username = username;
       });
     });
     setState(() {
