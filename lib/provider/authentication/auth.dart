@@ -1,6 +1,8 @@
 import 'dart:async';
+
 import 'package:chatty/models/user.dart';
 import 'package:chatty/provider/account_manager/account.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 ///This is an interface for [Auth] class.
@@ -22,14 +24,18 @@ class Auth implements BaseAuth {
   ///Holds an instance of [Auth].
   static Auth _instance;
 
-  ///Hols an instance of [FirebaseAuth].
+  ///Holds an instance of [FirebaseAuth].
+  Firestore _firestore;
+
+  ///Holds an instance of [FirebaseAuth].
   FirebaseAuth _firebaseAuth;
 
-  ///Hols an instance of [AccountManager].
+  ///Holds an instance of [AccountManager].
   AccountManager _accountManager;
 
   ///This is an internal constructor used when [Auth] is instantiated.
   Auth._internal() {
+    _firestore = Firestore.instance;
     _firebaseAuth = FirebaseAuth.instance;
     _accountManager = AccountManager.getInstance();
   }
@@ -76,9 +82,32 @@ class Auth implements BaseAuth {
     return user.isEmailVerified;
   }
 
-  bool get isFirstTime => _accountManager.isFirstTime();
+  Future<bool> get isFirstTime async => _accountManager.isFirstTime();
 
-  void saveUser(User user) => _accountManager.saveUser(user);
+  Future<User> saveUser(String uid) async {
+    final DocumentSnapshot userDocs =
+        await _firestore.collection('users').document(uid).get();
+
+    final User user = User.fromJson(userDocs.data);
+    _accountManager.saveUser(user);
+
+    return user;
+  }
+
+  void createUser(User user) async {
+    await _firestore.collection('users').document(user.uid).setData(
+          user.toJson(),
+        );
+
+    _accountManager.saveUser(user);
+  }
+
+  Future<User> getUser() async {
+    User user = await _accountManager.getUser();
+    return user;
+  }
+
+  void initializeApp() => _accountManager.initializeApp();
 }
 
 enum AuthStatus {

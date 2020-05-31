@@ -1,15 +1,16 @@
-import 'package:chatty/blocs/contacts_bloc.dart';
-import 'package:chatty/models/chat.dart';
-import 'package:chatty/models/contact.dart';
-import 'package:chatty/provider/authentication/auth.dart';
-import 'package:chatty/screens/msg_screen.dart';
+import '../blocs/contacts_bloc.dart';
+import '../models/chat.dart';
+import '../models/contact.dart';
+import '../models/user.dart';
+import '../provider/authentication/auth.dart';
+import '../screens/msg_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ContactList extends StatefulWidget {
-  ContactList(this.uid, this.auth, this.logOutCallback);
+  ContactList(this.user, this.auth, this.logOutCallback);
 
-  final String uid;
+  final User user;
   final Auth auth;
   final VoidCallback logOutCallback;
 
@@ -20,8 +21,7 @@ class ContactList extends StatefulWidget {
 class _ContactListState extends State<ContactList> {
   @override
   Widget build(BuildContext context) {
-    print('rebuilding contact list...');
-    final _contactsBloc = ContactsBloc(widget.uid);
+    final _contactsBloc = ContactsBloc(widget.user);
 
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
@@ -52,6 +52,10 @@ class _ContactListState extends State<ContactList> {
                           widget.auth.signOut();
                           widget.logOutCallback();
                         },
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.settings),
+                        onPressed: null,
                       )
                     ],
                   ),
@@ -95,7 +99,7 @@ class _ContactListState extends State<ContactList> {
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (ctx) => MessageScreen(
-                Chat(sender: widget.uid, receiver: contact.receiverID)),
+                Chat(sender: widget.user.uid, receiver: contact.receiverID)),
           ),
         );
       },

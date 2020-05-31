@@ -42,7 +42,7 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
     const int numberOfItemsOnScreen = 3;
 
     ///The total number of avatars.
-    const int totalAvatars = 5;
+    const int totalAvatars = 4;
 
     ///Dimensions of one list item.
     final double itemSize =
@@ -58,13 +58,13 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
         child: GestureDetector(
           ///[details] stores the drag deatils and distinguish between left swipe or right swipe.
           onHorizontalDragEnd: (details) {
-
             ///Checks whether list further can be scrolled or not using [_scrollController.position.maxScrollExtent].
             if (_offset <= _scrollController.position.maxScrollExtent) {
-              ///If [_isAtFirst] value is 'false' i.e. the first list item is not selected then allow left swipe. 
+              ///If [_isAtFirst] value is 'false' i.e. the first list item is not selected then allow left swipe.
               if (!_isAtFirst && details.primaryVelocity > 1e-12) {
                 _offset = _scrollController.offset - itemSize;
-              } 
+              }
+
               ///If [_isAtLast] value is 'false' i.e. the last list item is not selected then allow right swipe.
               else if (!_isAtLast && details.primaryVelocity < 1e-12) {
                 _offset = _scrollController.offset + itemSize;
@@ -92,16 +92,23 @@ class _UserAvatarPickerState extends State<UserAvatarPicker> {
           ///[itemExtent] is equal to the [itemSize]
           child: ListView.builder(
             itemBuilder: (ctx, index) {
-              if (index < numberOfSpaces ||
-                  index >= totalAvatars + numberOfSpaces) {
+              if (index < numberOfSpaces) {
                 return Blank(
                   height: itemSize,
                   width: itemSize,
                 );
               }
+
+              if (index >= totalAvatars + numberOfSpaces) {
+                return Blank(
+                  height: itemSize,
+                  width: itemSize,
+                );
+              }
+
               return UserAvatar(
                 ///Decides whether the current item is selected or not.
-                isSelected: _currentSelection == index,
+                isSelected: _currentSelection == (index-numberOfSpaces),
                 constraints: widget.constraints,
                 assetPath: 'assets/images/user_avatars/${index + 1}.jpg',
               );

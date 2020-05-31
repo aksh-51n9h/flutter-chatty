@@ -1,54 +1,60 @@
 import 'package:chatty/provider/account_manager/account.dart';
-
-import '../screens/contacts_list.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+import '../models/user.dart';
 import '../provider/authentication/auth.dart';
+import '../screens/contacts_list.dart';
 import 'auth_screen.dart';
 
 ///This widget is the root page of the app.
 ///It decides whether navigate to [contact_list.dart]
 ///or [auth_form.dart] based on authentication status.
 class BasePage extends StatefulWidget {
-  BasePage(this.auth);
-
-  final Auth auth;
-
   @override
   _BasePageState createState() => _BasePageState();
 }
 
 class _BasePageState extends State<BasePage> {
+  final auth = Auth.getInstance();
+
   ///Authentication status of the user. Default value is [AuthStatus.NOT_DETERMINED].
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
 
   ///This is used to store an instance of logged in user.
-  FirebaseUser _user;
-
-  String _userId = '';
-  String _username = '';
+  User _user;
 
   @override
   void initState() {
     super.initState();
-    if (widget.auth.isFirstTime) {
+
+    ///If user has previously logged in then get the user information and
+    ///set [_user] and [_authStatus].
+    initializeApp();
+    getUser();
+  }
+
+  void initializeApp() async {
+    if (await auth.isFirstTime) {
+      auth.initializeApp();
+    }
+  }
+
+  void getUser() async {
+    bool isFirstUsage = await auth.isFirstTime;
+    if (isFirstUsage) {
       setState(() {
+        _user = null;
         _authStatus = AuthStatus.NOT_LOGGED_IN;
       });
     } else {
-      widget.auth.getCurrentUser().then((user) {
-        setState(() {
-          if (user != null) {
+      auth.getUser().then(
+        (user) {
+          setState(() {
             _user = user;
-          }
-          _authStatus = user?.uid == null
-              ? AuthStatus.NOT_LOGGED_IN
-              : AuthStatus.LOGGED_IN;
-        });
-      }).catchError((error) {
-        print(error);
-      }).whenComplete(() {});
+            _authStatus = AuthStatus.LOGGED_IN;
+          });
+        },
+      );
     }
   }
 
@@ -63,25 +69,25 @@ class _BasePageState extends State<BasePage> {
       switchOutCurve: Curves.easeInBack,
       switchInCurve: Curves.easeIn,
       child: _authStatus == AuthStatus.LOGGED_IN
-          ? ContactList(_userId, widget.auth, logoutCallback)
-          : AuthScreen(
-              auth: widget.auth,
-              loginCallback: loginCallback,
-            ),
+          ? ContactList(_user, auth, logoutCallback)
+          : _authStatus == AuthStatus.NOT_LOGGED_IN
+              ? AuthScreen(
+                  auth: auth,
+                  loginCallback: loginCallback,
+                )
+              : buildWaitingScreen(),
     );
   }
 
   ///This function is called when user logged in and
   ///set [_authStatus] value to 'AuthStatus.LOGGED_IN'.
-  void loginCallback() {
-    widget.auth.getCurrentUser().then((user) {
+  void loginCallback(User user) {
+    if (user != null) {
       setState(() {
-        _userId = user.uid.toString();
+        _user = user;
+        _authStatus = AuthStatus.LOGGED_IN;
       });
-    });
-    setState(() {
-      _authStatus = AuthStatus.LOGGED_IN;
-    });
+    }
   }
 
   ///This function is called when user log out and
@@ -89,8 +95,7 @@ class _BasePageState extends State<BasePage> {
   void logoutCallback() {
     setState(() {
       _authStatus = AuthStatus.NOT_LOGGED_IN;
-      _userId = "";
-      _username = '';
+      _user = null;
     });
   }
 

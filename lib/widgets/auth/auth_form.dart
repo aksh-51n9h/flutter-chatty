@@ -14,7 +14,7 @@ class AuthForm extends StatefulWidget {
 
 class _AuthFormState extends State<AuthForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  bool _isLoginForm = !true;
+  bool _isLoginForm = true;
   String _fullname = '';
   String _username = 'User';
   String _email = '';
@@ -125,14 +125,13 @@ class _AuthFormState extends State<AuthForm> {
   Widget _buildUserPasswordTextField() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: TextField(
+      child: TextFormField(
         key: ValueKey('Password'),
         obscureText: true,
         decoration: InputDecoration(
           border: OutlineInputBorder(),
           isDense: true,
           labelText: 'Password',
-          suffixIcon: Icon(Icons.remove_red_eye),
         ),
         onChanged: (value) {
           this._password = value;
