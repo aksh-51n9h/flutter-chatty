@@ -1,3 +1,5 @@
+import 'package:chatty/screens/account_settings.dart';
+
 import '../blocs/contacts_bloc.dart';
 import '../models/chat.dart';
 import '../models/contact.dart';
@@ -19,12 +21,18 @@ class ContactList extends StatefulWidget {
 }
 
 class _ContactListState extends State<ContactList> {
+  ContactsBloc _contactsBloc;
+
+  @override
+  void initState() {
+    _contactsBloc = ContactsBloc(widget.user);
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final _contactsBloc = ContactsBloc(widget.user);
-
     return Scaffold(
-      body: StreamBuilder<QuerySnapshot>(
+      body: StreamBuilder<List<Contact>>(
           stream: _contactsBloc.contactsStream,
           builder: (ctx, snapshot) {
             // ignore: missing_return
@@ -55,16 +63,28 @@ class _ContactListState extends State<ContactList> {
                       ),
                       IconButton(
                         icon: Icon(Icons.settings),
-                        onPressed: null,
+                        onPressed: () {
+                          showModalBottomSheet(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20),
+                              ),
+                            ),
+                            context: context,
+                            builder: (ctx) {
+                              return AccountSettings(widget.user);
+                            },
+                          );
+                        },
                       )
                     ],
                   ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate((ctx, index) {
-                      return _buildContactListTile(
-                        Contact.fromJson(snapshot.data.documents[index].data),
-                      );
-                    }, childCount: snapshot.data.documents.length),
+                      print(snapshot.data[index].receiverID);
+                      return _buildContactListTile(snapshot.data[index]);
+                    }, childCount: snapshot.data.length),
                   ),
                 ],
               );
@@ -104,5 +124,11 @@ class _ContactListState extends State<ContactList> {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _contactsBloc.dispose();
+    super.dispose();
   }
 }
