@@ -108,6 +108,8 @@ class Auth implements BaseAuth {
   }
 
   void initializeApp() => _accountManager.initializeApp();
+
+  void clearUser() => _accountManager.clearUser();
 }
 
 enum AuthStatus {

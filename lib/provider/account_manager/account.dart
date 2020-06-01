@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///This class is used to manage account details of the user.
 ///Follows lazy singleton pattern.
 class AccountManager {
-  final String _IS_FIRST_TIME_TAG =  'IS_FIRST_TIME';
+  final String _IS_FIRST_TIME_TAG = 'IS_FIRST_TIME';
 
   ///Holds an instance of [AccountManager].
   static AccountManager _instance;
@@ -28,7 +28,7 @@ class AccountManager {
   ///If the value is [true] then it is first time usage and
   ///if the value is [false] then it is not first time usage.
   ///Default value is [true].
-  Future<bool> isFirstTime() async{
+  Future<bool> isFirstTime() async {
     this._sharedPreferences = await SharedPreferences.getInstance();
 
     if (_sharedPreferences != null) {
@@ -37,13 +37,13 @@ class AccountManager {
     return true;
   }
 
-  void initializeApp() async{
+  void initializeApp() async {
     this._sharedPreferences = await SharedPreferences.getInstance();
 
     _sharedPreferences.setBool(_IS_FIRST_TIME_TAG, false);
   }
 
-  void saveUser(User user) async{
+  void saveUser(User user) async {
     this._sharedPreferences = await SharedPreferences.getInstance();
     if (_sharedPreferences != null) {
       user.toJson().forEach((key, value) {
@@ -65,6 +65,11 @@ class AccountManager {
     }
 
     return null;
+  }
+
+  void clearUser() async {
+    this._sharedPreferences = await SharedPreferences.getInstance()
+      ..clear();
   }
 }
 

@@ -30,17 +30,15 @@ class _BasePageState extends State<BasePage> {
     ///If user has previously logged in then get the user information and
     ///set [_user] and [_authStatus].
     initializeApp();
-    getUser();
   }
 
   void initializeApp() async {
+    bool isFirstUsage = await auth.isFirstTime;
+
     if (await auth.isFirstTime) {
       auth.initializeApp();
     }
-  }
 
-  void getUser() async {
-    bool isFirstUsage = await auth.isFirstTime;
     if (isFirstUsage) {
       setState(() {
         _user = null;
@@ -97,6 +95,8 @@ class _BasePageState extends State<BasePage> {
       _authStatus = AuthStatus.NOT_LOGGED_IN;
       _user = null;
     });
+
+    auth.clearUser();
   }
 
   Widget buildWaitingScreen() {

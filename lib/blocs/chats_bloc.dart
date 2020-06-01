@@ -4,6 +4,7 @@ import 'package:chatty/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../models/chat.dart';
+import 'base_bloc.dart';
 
 class ChatsBloc implements BaseBloc {
   ChatsBloc(this.chat) {
@@ -33,6 +34,3 @@ class ChatsBloc implements BaseBloc {
   }
 }
 
-abstract class BaseBloc {
-  void dispose();
-}
