@@ -18,13 +18,6 @@ class ContactsBloc implements BaseBloc {
   StreamSink<List<Contact>> get _contactsSink => _contactsStreamController.sink;
   Stream<List<Contact>> get contactsStream => _contactsStreamController.stream;
 
-  final StreamController<List<Contact>> _contactsSearchStreamController =
-      StreamController<List<Contact>>();
-
-  StreamSink<List<Contact>> get _contactsSearchSink =>
-      _contactsSearchStreamController.sink;
-  Stream<List<Contact>> get contactsSearchResultStream =>
-      _contactsSearchStreamController.stream;
 
   ContactsBloc(this.user) {
     _firestore
@@ -62,6 +55,5 @@ class ContactsBloc implements BaseBloc {
   @override
   void dispose() {
     _contactsStreamController.close();
-    _contactsSearchStreamController.close();
   }
 }

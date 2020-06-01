@@ -1,19 +1,26 @@
-import '../provider/search/contacts_search_delegate.dart';
-import './account_settings.dart';
+import 'package:flutter/material.dart';
 
+import './account_settings.dart';
 import '../blocs/contacts_bloc.dart';
 import '../models/chat.dart';
 import '../models/contact.dart';
 import '../models/user.dart';
 import '../provider/authentication/auth.dart';
+import '../provider/search/contacts_search_delegate.dart';
 import '../screens/msg_screen.dart';
-import 'package:flutter/material.dart';
+import '../widgets/extras/waiting.dart';
 
+///This widget shows user all chats.
 class ContactList extends StatefulWidget {
   ContactList(this.user, this.auth, this.logOutCallback);
 
+  ///Holds an instance of user information.
   final User user;
+
+  ///Holds an instance of authentication module.
   final Auth auth;
+
+  ///This function is called whenever user logouts.
   final VoidCallback logOutCallback;
 
   @override
@@ -21,10 +28,12 @@ class ContactList extends StatefulWidget {
 }
 
 class _ContactListState extends State<ContactList> {
+  ///This holds an instance of [ContactsBloc].
   ContactsBloc _contactsBloc;
 
   @override
   void initState() {
+    ///Instantiate [_contactsBloc].
     _contactsBloc = ContactsBloc(widget.user);
     super.initState();
   }
@@ -35,13 +44,12 @@ class _ContactListState extends State<ContactList> {
       body: StreamBuilder<List<Contact>>(
           stream: _contactsBloc.contactsStream,
           builder: (ctx, snapshot) {
-            // ignore: missing_return
+            ///Checks whether the stream is waiting for data.
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: CircularProgressIndicator(),
-              );
+              return Waiting();
             }
 
+            ///Display data when it is available.
             if (snapshot.hasData) {
               return CustomScrollView(
                 slivers: [
@@ -80,7 +88,7 @@ class _ContactListState extends State<ContactList> {
                             },
                           );
                         },
-                      )
+                      ),
                     ],
                   ),
                   SliverList(
@@ -97,7 +105,9 @@ class _ContactListState extends State<ContactList> {
           }),
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.create),
-        onPressed: () {},
+        onPressed: () {
+          //TODO: Implementaion of new chat.
+        },
       ),
     );
   }

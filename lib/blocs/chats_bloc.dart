@@ -20,7 +20,7 @@ class ChatsBloc implements BaseBloc {
 
   final Chat chat;
   final Firestore _firestore = Firestore.instance;
-  List<DocumentSnapshot> _messages = [];
+//  List<DocumentSnapshot> _messages = [];
 
   final _messagesStreamController = StreamController<List<Message>>();
 

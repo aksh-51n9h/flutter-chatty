@@ -1,9 +1,12 @@
-import 'package:chatty/blocs/chats_bloc.dart';
-import 'package:chatty/models/chat.dart';
-import 'package:chatty/models/message.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../blocs/chats_bloc.dart';
+import '../models/chat.dart';
+import '../models/message.dart';
+import '../widgets/extras/waiting.dart';
+
+//todo:implement message bubble.
+//todo:implement new message send.
 class MessageScreen extends StatefulWidget {
   MessageScreen(this.chat);
 
@@ -32,23 +35,21 @@ class _MessageScreenState extends State<MessageScreen> {
         stream: _chatsBloc.messagesStream,
         builder: (ctx, stream) {
           if (stream.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            return Waiting();
           }
 
           return ListView.builder(
             itemCount: stream.data.length,
             reverse: true,
             itemBuilder: (ctx, index) {
-              if(stream.data[index].userId.compareTo(widget.chat.sender.uid) == 0){
+              if (stream.data[index].userId.compareTo(widget.chat.sender.uid) ==
+                  0) {
                 return ListTile(
-                title: Text(
-                  stream.data[index].text,
-                ),
-
-                subtitle: Text('send'),
-              );
+                  title: Text(
+                    stream.data[index].text,
+                  ),
+                  subtitle: Text('send'),
+                );
               }
 
               return ListTile(

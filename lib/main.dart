@@ -1,8 +1,6 @@
-import 'package:chatty/provider/account_manager/account.dart';
 import 'package:flutter/material.dart';
 
-import './provider/authentication/auth.dart';
-import './screens/root_page.dart';
+import './screens/base_page.dart';
 
 void main() {
   runApp(MyApp());

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///This class is used to manage account details of the user.
 ///Follows lazy singleton pattern.
 class AccountManager {
-  final String _IS_FIRST_TIME_TAG = 'IS_FIRST_TIME';
+  final String _isFirstTimeTag = 'IS_FIRST_TIME';
 
   ///Holds an instance of [AccountManager].
   static AccountManager _instance;
@@ -25,24 +25,26 @@ class AccountManager {
   }
 
   ///Checks whether user is using the app for first time.
-  ///If the value is [true] then it is first time usage and
-  ///if the value is [false] then it is not first time usage.
-  ///Default value is [true].
+  ///If the value is 'true' then it is first time usage and
+  ///if the value is 'false' then it is not first time usage.
+  ///Default value is 'true'.
   Future<bool> isFirstTime() async {
     this._sharedPreferences = await SharedPreferences.getInstance();
 
     if (_sharedPreferences != null) {
-      return _sharedPreferences.getBool(_IS_FIRST_TIME_TAG) ?? true;
+      return _sharedPreferences.getBool(_isFirstTimeTag) ?? true;
     }
     return true;
   }
 
+  ///Initializes [_isFirstTimeTag] with 'false' i.e. now app is opened for the first time.
   void initializeApp() async {
     this._sharedPreferences = await SharedPreferences.getInstance();
 
-    _sharedPreferences.setBool(_IS_FIRST_TIME_TAG, false);
+    _sharedPreferences.setBool(_isFirstTimeTag, false);
   }
 
+  ///Saves user information locally.
   void saveUser(User user) async {
     this._sharedPreferences = await SharedPreferences.getInstance();
     if (_sharedPreferences != null) {
@@ -52,6 +54,7 @@ class AccountManager {
     }
   }
 
+  ///Fetch local user information and returns future of [User].
   Future<User> getUser() async {
     this._sharedPreferences = await SharedPreferences.getInstance();
     if (_sharedPreferences != null) {
@@ -62,19 +65,22 @@ class AccountManager {
         email: _sharedPreferences.getString('email') ?? '',
         imageUrl: _sharedPreferences.getString('imageUrl') ?? '',
       );
+    } else {
+      throw AccountManagerException(
+          errorMessage: "Error in fetching local user information.");
     }
-
-    return null;
   }
 
+  ///When user logout from the app then clear local user information.
   void clearUser() async {
     this._sharedPreferences = await SharedPreferences.getInstance()
       ..clear();
   }
 }
 
-class LocalUserSaveException implements Exception {
+///Custom exception.
+class AccountManagerException implements Exception {
   final String errorMessage;
 
-  LocalUserSaveException({@required this.errorMessage});
+  AccountManagerException({@required this.errorMessage});
 }

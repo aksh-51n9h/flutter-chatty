@@ -1,4 +1,3 @@
-import 'package:chatty/provider/account_manager/account.dart';
 import 'package:flutter/material.dart';
 
 import '../models/user.dart';
@@ -15,7 +14,8 @@ class BasePage extends StatefulWidget {
 }
 
 class _BasePageState extends State<BasePage> {
-  final auth = Auth.getInstance();
+  //Holds an instance of [Auth].
+  final Auth _auth = Auth.getInstance();
 
   ///Authentication status of the user. Default value is [AuthStatus.NOT_DETERMINED].
   AuthStatus _authStatus = AuthStatus.NOT_DETERMINED;
@@ -33,10 +33,10 @@ class _BasePageState extends State<BasePage> {
   }
 
   void initializeApp() async {
-    bool isFirstUsage = await auth.isFirstTime;
+    bool isFirstUsage = await _auth.isFirstTime;
 
-    if (await auth.isFirstTime) {
-      auth.initializeApp();
+    if (await _auth.isFirstTime) {
+      _auth.initializeApp();
     }
 
     if (isFirstUsage) {
@@ -45,7 +45,7 @@ class _BasePageState extends State<BasePage> {
         _authStatus = AuthStatus.NOT_LOGGED_IN;
       });
     } else {
-      auth.getUser().then(
+      _auth.getUser().then(
         (user) {
           setState(() {
             _user = user;
@@ -67,10 +67,10 @@ class _BasePageState extends State<BasePage> {
       switchOutCurve: Curves.easeInBack,
       switchInCurve: Curves.easeIn,
       child: _authStatus == AuthStatus.LOGGED_IN
-          ? ContactList(_user, auth, logoutCallback)
+          ? ContactList(_user, _auth, logoutCallback)
           : _authStatus == AuthStatus.NOT_LOGGED_IN
               ? AuthScreen(
-                  auth: auth,
+                  auth: _auth,
                   loginCallback: loginCallback,
                 )
               : buildWaitingScreen(),
@@ -96,9 +96,10 @@ class _BasePageState extends State<BasePage> {
       _user = null;
     });
 
-    auth.clearUser();
+    _auth.clearUser();
   }
 
+  ///This function returns waiting widget.
   Widget buildWaitingScreen() {
     return Center(
       child: CircularProgressIndicator(),
