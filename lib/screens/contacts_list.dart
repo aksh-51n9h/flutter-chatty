@@ -1,4 +1,5 @@
-import 'package:chatty/screens/account_settings.dart';
+import '../provider/search/contacts_search_delegate.dart';
+import './account_settings.dart';
 
 import '../blocs/contacts_bloc.dart';
 import '../models/chat.dart';
@@ -6,7 +7,6 @@ import '../models/contact.dart';
 import '../models/user.dart';
 import '../provider/authentication/auth.dart';
 import '../screens/msg_screen.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ContactList extends StatefulWidget {
@@ -51,7 +51,10 @@ class _ContactListState extends State<ContactList> {
                       IconButton(
                         icon: Icon(Icons.search),
                         onPressed: () {
-                          showSearch(context: context, delegate: null);
+                          showSearch(
+                            context: context,
+                            delegate: ContactsSearchDelegate(),
+                          );
                         },
                       ),
                       IconButton(
