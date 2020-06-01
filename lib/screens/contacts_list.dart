@@ -53,7 +53,7 @@ class _ContactListState extends State<ContactList> {
                         onPressed: () {
                           showSearch(
                             context: context,
-                            delegate: ContactsSearchDelegate(),
+                            delegate: ContactsSearchDelegate(_contactsBloc),
                           );
                         },
                       ),
@@ -121,8 +121,8 @@ class _ContactListState extends State<ContactList> {
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (ctx) => MessageScreen(
-                Chat(sender: widget.user.uid, receiver: contact.receiverID)),
+            builder: (ctx) =>
+                MessageScreen(Chat(sender: widget.user, receiver: contact)),
           ),
         );
       },

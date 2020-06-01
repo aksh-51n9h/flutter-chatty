@@ -9,8 +9,18 @@ class _EmptyStateUIState extends State<EmptyStateUI> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Center(
-        child: Text('No network connection \u2639'),
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Icon(
+            Icons.search,
+            size: 64,
+          ),
+          Text("Search Contacts"),
+        ],
       ),
     );
   }

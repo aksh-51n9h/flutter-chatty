@@ -25,18 +25,32 @@ class _MessageScreenState extends State<MessageScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: Text(widget.chat.receiver.username),
+      ),
       body: StreamBuilder<List<Message>>(
         stream: _chatsBloc.messagesStream,
         builder: (ctx, stream) {
           if (stream.connectionState == ConnectionState.waiting) {
-            return Text('loading...');
+            return Center(
+              child: CircularProgressIndicator(),
+            );
           }
 
           return ListView.builder(
             itemCount: stream.data.length,
             reverse: true,
             itemBuilder: (ctx, index) {
+              if(stream.data[index].userId.compareTo(widget.chat.sender.uid) == 0){
+                return ListTile(
+                title: Text(
+                  stream.data[index].text,
+                ),
+
+                subtitle: Text('send'),
+              );
+              }
+
               return ListTile(
                 title: Text(
                   stream.data[index].text,

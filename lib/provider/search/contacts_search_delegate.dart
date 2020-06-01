@@ -1,6 +1,20 @@
+import 'package:chatty/blocs/contacts_bloc.dart';
+import 'package:chatty/screens/empty_state_ui.dart';
 import 'package:flutter/material.dart';
 
 class ContactsSearchDelegate extends SearchDelegate {
+  final ContactsBloc contactsBloc;
+
+  ContactsSearchDelegate(this.contactsBloc);
+
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    assert(context != null);
+    final ThemeData theme = Theme.of(context);
+    assert(theme != null);
+    return theme;
+  }
+
   @override
   List<Widget> buildActions(BuildContext context) {
     return [
@@ -25,44 +39,40 @@ class ContactsSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    if (query.length < 3) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Center(
-            child: Text(
-              "Search term must be longer than two letters.",
-            ),
-          )
-        ],
-      );
+    if (query.length < 1) {
+      return EmptyStateUI();
     }
 
-    return ListView.builder(
-      itemBuilder: (ctx, index) {
-        return ListTile(
-          title: Text('Search result $index'),
-        );
-      },
-      itemCount: 5,
+    List searchResult = contactsBloc.searchContact(query);
+
+    return Container(
+      child: ListView.builder(
+        itemBuilder: (ctx, index) {
+          return ListTile(
+            title: Text(searchResult[index].fullname),
+          );
+        },
+        itemCount: searchResult.length,
+      ),
     );
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    if (query.length > 0 && query.length < 3) {
-      return Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Center(
-            child: Text(
-              "Search term must be longer than two letters.",
-            ),
-          )
-        ],
-      );
+    if (query.length < 1) {
+      return EmptyStateUI();
     }
 
-    return Container();
+    List searchResult = contactsBloc.searchContact(query);
+    return Container(
+      child: ListView.builder(
+        itemBuilder: (ctx, index) {
+          return ListTile(
+            title: Text(searchResult[index].fullname),
+          );
+        },
+        itemCount: searchResult.length,
+      ),
+    );
   }
 }

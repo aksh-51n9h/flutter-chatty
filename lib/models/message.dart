@@ -9,7 +9,7 @@ class Message {
 
   factory Message.fromJson(Map<String, dynamic> json) {
     return Message(
-        userId: json['userID'],
+        userId: json['userId'],
         text: json['text'],
         createdAt: json['createdAt']);
   }
