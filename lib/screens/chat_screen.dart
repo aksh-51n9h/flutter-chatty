@@ -33,8 +33,6 @@ class ChatScreen extends StatelessWidget {
               child: Messages(),
             ),
             NewMessage(
-              sender: sender,
-              receiver: receiver,
               isNewChat: isNewChat,
             ),
           ],

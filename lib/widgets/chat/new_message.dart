@@ -1,15 +1,17 @@
+import 'package:chatty/blocs/chats_bloc.dart';
+import 'package:chatty/models/chat.dart';
+import 'package:chatty/models/contact.dart';
+import 'package:chatty/models/message.dart';
 import 'package:chatty/models/user.dart';
+import 'package:chatty/provider/bloc/bloc_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class NewMessage extends StatefulWidget {
   NewMessage({
-    @required this.sender,
-    @required this.receiver,
-    @required this.isNewChat,
+    this.isNewChat,
   });
-  final User sender;
-  final User receiver;
+
   final bool isNewChat;
 
   @override
@@ -22,10 +24,12 @@ class _NewMessageState extends State<NewMessage> {
   String _enteredMessage = '';
 
   void _sendMessage() async {
-    final User sender = widget.sender;
-    final User receiver = widget.receiver;
+    final ChatsBloc chatsBloc = BlocProvider.of<ChatsBloc>(context);
+    final Chat chat = chatsBloc.chat;
+    final User sender = chat.sender;
+    final Contact receiver = chat.receiver;
 
-    final String chatID = _getChatID(sender, receiver);
+    final String chatID = chat.chatID;
 
     if (widget.isNewChat) {
       final WriteBatch batch = _db.batch();
@@ -37,7 +41,7 @@ class _NewMessageState extends State<NewMessage> {
         {
           'senderID': sender.uid,
           'requestedChat': true,
-          'receiverID': receiver.uid,
+          'receiverID': receiver.receiverID,
           'primaryChat': false,
           'messageAllowed': false,
           'blocked': false,
@@ -51,14 +55,14 @@ class _NewMessageState extends State<NewMessage> {
         {
           'fullname': receiver.fullname,
           'username': receiver.username,
-          'receiverID': receiver.uid,
-          'imageUrl': receiver.imageUrl,
+          'receiverID': receiver.receiverID,
+          'imageUrl': '',
           'blocked': false,
           'blockedBy': null,
         },
       );
 
-      chatsList = _db.collection('users/${receiver.uid}/chats_list');
+      chatsList = _db.collection('users/${receiver.receiverID}/chats_list');
       chatsList.add(
         {
           'fullname': sender.fullname,
@@ -73,18 +77,13 @@ class _NewMessageState extends State<NewMessage> {
       batch.commit();
     }
 
-  
+    final Message message = Message(
+      text: _enteredMessage,
+      createdAt: Timestamp.now(),
+      userId: sender.uid,
+    );
 
-    final Map<String, Object> message = {
-      'text': _enteredMessage,
-      'createdAt': Timestamp.now(),
-      'userId': sender.uid,
-    };
-
-    _db.collection('chats/$chatID/messages')
-      ..add(
-        message,
-      );
+    chatsBloc.sendMessage(message);
 
     _controller.clear();
     setState(() {
@@ -92,26 +91,18 @@ class _NewMessageState extends State<NewMessage> {
     });
   }
 
-  String _getChatID(User sender, User receiver) {
-    final String chatID = (sender.uid.compareTo(receiver.uid) > 0)
-        ? sender.uid + receiver.uid
-        : receiver.uid + sender.uid;
-    return chatID;
-  }
-
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constrainst) {
-      // print(constrainst.maxWidth * 0.08);
+    return LayoutBuilder(builder: (context, constraints) {
       return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         child: Container(
           // margin: const EdgeInsets.only(top: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(
-              constrainst.maxWidth * 0.06,
+              constraints.maxWidth * 0.06,
             ),
-            color: Colors.blueGrey[700],
+//            color: Colors.blueGrey[50],
           ),
           padding: const EdgeInsets.symmetric(horizontal: 2),
           child: Row(

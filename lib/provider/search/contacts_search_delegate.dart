@@ -69,10 +69,13 @@ class ContactsSearchDelegate extends SearchDelegate {
         itemBuilder: (ctx, index) {
           return ListTile(
             title: Text(searchResult[index].fullname),
+            onTap: () {},
           );
         },
         itemCount: searchResult.length,
       ),
     );
   }
+
+
 }

@@ -13,4 +13,12 @@ class Message {
         text: json['text'],
         createdAt: json['createdAt']);
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'userId': this.userId,
+      'text': this.text,
+      'createdAt': this.createdAt,
+    };
+  }
 }

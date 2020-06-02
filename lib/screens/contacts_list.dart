@@ -129,13 +129,17 @@ class _ContactListState extends State<ContactList> {
       title: Text(contact.username),
       subtitle: Text(contact.fullname),
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (ctx) =>
-                MessageScreen(Chat(sender: widget.user, receiver: contact)),
-          ),
-        );
+        openChat(contact);
       },
+    );
+  }
+
+  void openChat(Contact contact) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (ctx) =>
+            MessageScreen(Chat(sender: widget.user, receiver: contact)),
+      ),
     );
   }
 

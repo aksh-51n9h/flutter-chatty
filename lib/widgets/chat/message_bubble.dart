@@ -14,11 +14,7 @@ class MessageBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bool isMe = BlocProvider.of<ChatsBloc>(context)
-            .chat
-            .sender
-            .uid
-            .compareTo(message.userId) ==
-        0;
+        .isCurrentUser(otherId: message.userId);
 
     final timeStampWidget = Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -36,17 +32,8 @@ class MessageBubble extends StatelessWidget {
           mainAxisAlignment:
           isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: <Widget>[
-            // if (!isMe)
-            //   Container(
-            //       margin: const EdgeInsets.only(left:4, tosp: 8),
-            //       child: CircleAvatar(
-            //         radius: 8,
-            //         backgroundColor: Colors.amber,
-            //       ),
-            //     ),
             if (isMe) timeStampWidget,
             Container(
-              // width: constraints.maxWidth * 0.625,
               constraints: BoxConstraints(
                 maxWidth: constraints.maxWidth * 0.625,
               ),
@@ -62,10 +49,6 @@ class MessageBubble extends StatelessWidget {
                     topRight: radius,
                     bottomLeft: radius,
                     bottomRight: radius),
-                // border: Border.all(
-                //   color: isMe ? Colors.teal : Colors.blueGrey,
-                //   width: 2
-                // ),
               ),
               padding: const EdgeInsets.symmetric(
                 horizontal: 16,

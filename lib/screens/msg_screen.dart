@@ -40,7 +40,9 @@ class _MessageScreenState extends State<MessageScreen> {
               Expanded(
                 child: Messages(),
               ),
-              NewMessage(),
+              NewMessage(
+                isNewChat: false,
+              ),
             ],
           ),
         ),
