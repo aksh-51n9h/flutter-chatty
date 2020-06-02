@@ -1,118 +1,49 @@
-import 'package:animations/animations.dart';
+import 'package:chatty/blocs/chats_bloc.dart';
+import 'package:chatty/models/message.dart';
+import 'package:chatty/provider/bloc/bloc_provider.dart';
 import 'package:chatty/widgets/chat/message_bubble.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:chatty/widgets/extras/waiting.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
-class Messages extends StatelessWidget {
-  Messages(this.toUserId);
-
-  final String toUserId;
+class Messages extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<FirebaseUser>(
-      future: FirebaseAuth.instance.currentUser(),
-      builder: (ctx, futureSnapshot) {
-        if (futureSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        }
-
-        final String userID = futureSnapshot.data.uid;
-        final String chatID = (userID.compareTo(toUserId) > 0)
-            ? userID + toUserId
-            : toUserId + userID;
-
-        return StreamBuilder<QuerySnapshot>(
-          stream: Firestore.instance
-              .collection('chats/$chatID/messages')
-              .orderBy('createdAt', descending: true)
-              .snapshots(),
-          builder: (ctx, chatsSnapshot) {
-            return PageTransitionSwitcher(
-              duration: const Duration(milliseconds: 300),
-              transitionBuilder: (Widget child, Animation primaryAnimation,
-                  Animation secondaryAnimation) {
-                return SharedAxisTransition(
-                  animation: primaryAnimation,
-                  secondaryAnimation: secondaryAnimation,
-                  transitionType: SharedAxisTransitionType.vertical,
-                  child: child,
-                );
-              },
-              child: chatsSnapshot.connectionState == ConnectionState.waiting
-                  ? Center(child: CircularProgressIndicator())
-                  : _MessageList(
-                      chatsSnapshot: chatsSnapshot,
-                      futureSnapshot: futureSnapshot,
-                    ),
-            );
-            // if (chatsSnapshot.connectionState == ConnectionState.waiting) {
-            //   return Center(child: CircularProgressIndicator());
-            // }
-
-            // final chatsDocs = chatsSnapshot.data.documents;
-
-            // return ListView.builder(
-            //   reverse: true,
-            //   itemCount: chatsDocs.length,
-            //   itemBuilder: (ctx, index) => MessageBubble(
-            //     chatsDocs[index]['text'],
-            //     chatsDocs[index]['userId'] == futureSnapshot.data.uid,
-            //     chatsDocs[index]['userId'],
-            //     chatsDocs[index]['createdAt'],
-            //     key: ValueKey(chatsDocs[index].documentID),
-            //   ),
-            // );
-          },
-        );
-      },
-    );
-  }
+  _MessagesState createState() => _MessagesState();
 }
 
-class _MessageList extends StatelessWidget {
-  const _MessageList({
-    this.chatsSnapshot,
-    this.futureSnapshot,
-    Key key,
-  }) : super(key: key);
-
-  final AsyncSnapshot<QuerySnapshot> chatsSnapshot;
-  final AsyncSnapshot<FirebaseUser> futureSnapshot;
+class _MessagesState extends State<Messages> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      reverse: true,
-      itemCount: chatsSnapshot.data.documents.length,
-      itemBuilder: (ctx, index) => MessageBubble(
-        chatsSnapshot.data.documents[index]['text'],
-        chatsSnapshot.data.documents[index]['userId'] ==
-            futureSnapshot.data.uid,
-        chatsSnapshot.data.documents[index]['userId'],
-        chatsSnapshot.data.documents[index]['createdAt'],
-        key: ValueKey(chatsSnapshot.data.documents[index].documentID),
+    return Container(
+      child: StreamBuilder<List<Message>>(
+        stream: BlocProvider.of<ChatsBloc>(context).messagesStream,
+        builder: (ctx, snapshot) {
+          if (snapshot.hasData) {
+            return ListView.builder(
+              reverse: true,
+              itemBuilder: (ctx, index) {
+                return MessageBubble(
+                    snapshot.data[index].text,
+                    false,
+                    snapshot.data[index].userId,
+                    snapshot.data[index].createdAt);
+              },
+              itemCount: snapshot.data.length,
+            );
+          }
+
+          return Waiting();
+        },
       ),
     );
   }
-}
 
-// PageTransitionSwitcher(
-//                 duration: const Duration(milliseconds: 300),
-//                 reverse: !_isLoggedIn,
-//                 transitionBuilder: (
-//                   Widget child,
-//                   Animation<double> animation,
-//                   Animation<double> secondaryAnimation,
-//                 ) {
-//                   return SharedAxisTransition(
-//                     child: child,
-//                     animation: animation,
-//                     secondaryAnimation: secondaryAnimation,
-//                     transitionType: _transitionType,
-//                   );
-//                 },
-//                 child: _isLoggedIn ? _CoursePage() : _SignInPage(),
-//               ),
+  @override
+  void dispose() {
+    super.dispose();
+  }
+}

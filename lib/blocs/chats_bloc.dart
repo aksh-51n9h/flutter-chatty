@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/chat.dart';
 import 'base_bloc.dart';
 
-class ChatsBloc implements BaseBloc {
+class ChatsBloc implements Bloc {
   ChatsBloc(this.chat) {
     _firestore
         .collection('chats/${chat.chatID}/messages')

@@ -1,11 +1,6 @@
 import 'package:chatty/blocs/base_bloc.dart';
 
-class SettingsBloc implements BaseBloc{
-
-  
-
+class SettingsBloc implements Bloc {
   @override
-  void dispose() {
-  }
-
+  void dispose() {}
 }

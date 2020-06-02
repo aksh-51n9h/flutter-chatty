@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import '../blocs/base_bloc.dart';
-import '../models/user.dart';
-
-import '../models/contact.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ContactsBloc implements BaseBloc {
+import '../blocs/base_bloc.dart';
+import '../models/contact.dart';
+import '../models/user.dart';
+
+class ContactsBloc implements Bloc {
   final Firestore _firestore = Firestore.instance;
   final User user;
 
@@ -16,8 +16,8 @@ class ContactsBloc implements BaseBloc {
       StreamController<List<Contact>>();
 
   StreamSink<List<Contact>> get _contactsSink => _contactsStreamController.sink;
-  Stream<List<Contact>> get contactsStream => _contactsStreamController.stream;
 
+  Stream<List<Contact>> get contactsStream => _contactsStreamController.stream;
 
   ContactsBloc(this.user) {
     _firestore

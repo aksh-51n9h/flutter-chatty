@@ -1,9 +1,10 @@
+import 'package:chatty/provider/bloc/bloc_provider.dart';
+import 'package:chatty/widgets/chat/messages.dart';
+import 'package:chatty/widgets/chat/new_message.dart';
 import 'package:flutter/material.dart';
 
 import '../blocs/chats_bloc.dart';
 import '../models/chat.dart';
-import '../models/message.dart';
-import '../widgets/extras/waiting.dart';
 
 //todo:implement message bubble.
 //todo:implement new message send.
@@ -21,8 +22,8 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   void initState() {
-    _chatsBloc = ChatsBloc(widget.chat);
     super.initState();
+    _chatsBloc = ChatsBloc(widget.chat);
   }
 
   @override
@@ -31,35 +32,18 @@ class _MessageScreenState extends State<MessageScreen> {
       appBar: AppBar(
         title: Text(widget.chat.receiver.username),
       ),
-      body: StreamBuilder<List<Message>>(
-        stream: _chatsBloc.messagesStream,
-        builder: (ctx, stream) {
-          if (stream.connectionState == ConnectionState.waiting) {
-            return Waiting();
-          }
-
-          return ListView.builder(
-            itemCount: stream.data.length,
-            reverse: true,
-            itemBuilder: (ctx, index) {
-              if (stream.data[index].userId.compareTo(widget.chat.sender.uid) ==
-                  0) {
-                return ListTile(
-                  title: Text(
-                    stream.data[index].text,
-                  ),
-                  subtitle: Text('send'),
-                );
-              }
-
-              return ListTile(
-                title: Text(
-                  stream.data[index].text,
-                ),
-              );
-            },
-          );
-        },
+      body: BlocProvider(
+        bloc: _chatsBloc,
+        child: Container(
+          child: Column(
+            children: [
+              Expanded(
+                child: Messages(),
+              ),
+              NewMessage(),
+            ],
+          ),
+        ),
       ),
     );
   }
