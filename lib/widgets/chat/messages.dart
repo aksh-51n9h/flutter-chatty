@@ -23,14 +23,13 @@ class _MessagesState extends State<Messages> {
         stream: BlocProvider.of<ChatsBloc>(context).messagesStream,
         builder: (ctx, snapshot) {
           if (snapshot.hasData) {
+            final List<Message> messages = snapshot.data;
             return ListView.builder(
               reverse: true,
               itemBuilder: (ctx, index) {
-                return MessageBubble(
-                    snapshot.data[index].text,
-                    false,
-                    snapshot.data[index].userId,
-                    snapshot.data[index].createdAt);
+                final Message message = messages[index];
+
+                return MessageBubble(message);
               },
               itemCount: snapshot.data.length,
             );
