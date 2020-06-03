@@ -26,6 +26,13 @@ class ChatsBloc implements Bloc {
       );
   }
 
+  void addContact(String uid) {
+    _firestore.collection('users/$uid/chats_list')
+      ..add(
+        chat.receiver.toJson(),
+      );
+  }
+
   final Chat chat;
   final Firestore _firestore = Firestore.instance;
 

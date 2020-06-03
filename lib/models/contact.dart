@@ -13,13 +13,22 @@ class Contact {
     this.username,
   });
 
-  factory Contact.fromJson(Map<String, dynamic> json){
+  factory Contact.fromJson(Map<String, dynamic> json) {
     return Contact(
-      receiverID: json['receiverID'],
-      blocked: json['blocked'],
-      blockedBy: json['blockedBy'],
-      fullname: json['fullname'],
-      username: json['username']
-    );
+        receiverID: json['receiverID'],
+        blocked: json['blocked'],
+        blockedBy: json['blockedBy'],
+        fullname: json['fullname'],
+        username: json['username']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'receiverID': this.receiverID,
+      'fullname': this.fullname,
+      'username': this.username,
+      'blocked': this.blocked,
+      'blockedBy': this.blockedBy,
+    };
   }
 }

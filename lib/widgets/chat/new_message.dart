@@ -121,7 +121,7 @@ class _NewMessageState extends State<NewMessage> {
                   controller: _controller,
                   decoration: InputDecoration(
                     hintText: 'Type a message...',
-                    hintStyle: TextStyle(color: Colors.white),
+//                    hintStyle: TextStyle(color: Colors.white),
                     border: InputBorder.none,
                   ),
                   onChanged: (value) {

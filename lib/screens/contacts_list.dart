@@ -1,3 +1,4 @@
+import 'package:chatty/widgets/route/custom_page_route.dart';
 import 'package:flutter/material.dart';
 
 import './account_settings.dart';
@@ -136,9 +137,8 @@ class _ContactListState extends State<ContactList> {
 
   void openChat(Contact contact) {
     Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (ctx) =>
-            MessageScreen(Chat(sender: widget.user, receiver: contact)),
+      CustomPageRoute(
+        child: MessageScreen(Chat(sender: widget.user, receiver: contact)),
       ),
     );
   }

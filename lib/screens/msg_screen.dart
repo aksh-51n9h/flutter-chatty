@@ -28,6 +28,7 @@ class _MessageScreenState extends State<MessageScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print('building msg screen');
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.chat.receiver.username),
