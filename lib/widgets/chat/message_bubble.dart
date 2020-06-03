@@ -16,12 +16,19 @@ class MessageBubble extends StatelessWidget {
     final bool isMe = BlocProvider.of<ChatsBloc>(context)
         .isCurrentUser(otherId: message.userId);
 
+    final String time = DateFormat.jm().format(message.createdAt.toDate());
+
+    final String day = DateFormat.E().format(message.createdAt.toDate());
+
+    final String timeStamp =
+        isMe ? day + " \u2022 " + time : time + " \u2022 " + day;
+
     final timeStampWidget = Container(
       margin: const EdgeInsets.symmetric(horizontal: 4),
       child: Text(
-        "${DateFormat.jm().format(message.createdAt.toDate())}",
+        timeStamp,
         style:
-            Theme.of(context).textTheme.caption.apply(color: Colors.grey[700]),
+            Theme.of(context).textTheme.caption.apply(color: Colors.grey[600]),
       ),
     );
 
