@@ -1,3 +1,4 @@
+import 'package:chatty/widgets/empty_state/last_message_waiting.dart';
 import 'package:chatty/widgets/route/custom_page_route.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -125,7 +126,6 @@ class _ContactListState extends State<ContactList> {
           .limit(1)
           .snapshots(),
       builder: (ctx, future) {
-        print('contact tile rebuilding...');
         return ListTile(
           leading: CircleAvatar(
             child: Container(
@@ -140,8 +140,9 @@ class _ContactListState extends State<ContactList> {
             ),
           ),
           title: Text(contact.username),
-          subtitle: Text(
-              future.hasData ? future.data.documents[0]['text'] : 'loading...'),
+          subtitle: future.hasData
+              ? Text(future.data.documents[0]['text'])
+              : LastMessageWaiting(),
           onTap: () {
             openChat(contact);
           },
