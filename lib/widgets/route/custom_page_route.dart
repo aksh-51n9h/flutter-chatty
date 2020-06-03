@@ -14,7 +14,7 @@ class CustomPageRoute extends PageRouteBuilder {
             );
           },
 //          transitionDuration: Duration(seconds: 3),
-          transitionDuration: Duration(milliseconds: 450),
+//          transitionDuration: Duration(milliseconds: 450),
           transitionsBuilder: (BuildContext context,
               Animation<double> animation,
               Animation<double> secondaryAnimation,
@@ -26,17 +26,17 @@ class CustomPageRoute extends PageRouteBuilder {
               ).animate(
                 CurvedAnimation(
                   parent: animation,
-                  curve: Curves.decelerate,
+                  curve: Curves.easeInOutCubic,
                 ),
               ),
               child: SlideTransition(
                 position: Tween<Offset>(
-                  begin: Offset(0, 0.95),
+                  begin: Offset(0, 1.125),
                   end: Offset.zero,
                 ).animate(
                   CurvedAnimation(
                     parent: animation,
-                    curve: Curves.decelerate,
+                    curve: Curves.easeInOutCubic,
                   ),
                 ),
                 child: child,

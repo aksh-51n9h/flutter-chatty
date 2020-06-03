@@ -1,4 +1,5 @@
 import 'package:chatty/widgets/route/custom_page_route.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import './account_settings.dart';
@@ -10,6 +11,8 @@ import '../provider/authentication/auth.dart';
 import '../provider/search/contacts_search_delegate.dart';
 import '../screens/msg_screen.dart';
 import '../widgets/extras/waiting.dart';
+
+//todo:wrap ContactList widget with ContactsBloc
 
 ///This widget shows user all chats.
 class ContactList extends StatefulWidget {
@@ -94,7 +97,6 @@ class _ContactListState extends State<ContactList> {
                   ),
                   SliverList(
                     delegate: SliverChildBuilderDelegate((ctx, index) {
-                      print(snapshot.data[index].receiverID);
                       return _buildContactListTile(snapshot.data[index]);
                     }, childCount: snapshot.data.length),
                   ),
@@ -114,23 +116,36 @@ class _ContactListState extends State<ContactList> {
   }
 
   Widget _buildContactListTile(Contact contact) {
-    return ListTile(
-      leading: CircleAvatar(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.grey[300],
-            shape: BoxShape.circle,
-            image: DecorationImage(
-              image: AssetImage(
-                  'assets/images/user_avatars/${contact.username.length % 4 * 2 + 1}.jpg'),
+    //Todo: implement last message in optimal way.
+    final Chat chat = Chat(sender: widget.user, receiver: contact);
+    return StreamBuilder<QuerySnapshot>(
+      stream: Firestore.instance
+          .collection('chats/${chat.chatID}/messages')
+          .orderBy('createdAt', descending: true)
+          .limit(1)
+          .snapshots(),
+      builder: (ctx, future) {
+        print('contact tile rebuilding...');
+        return ListTile(
+          leading: CircleAvatar(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                shape: BoxShape.circle,
+                image: DecorationImage(
+                  image: AssetImage(
+                      'assets/images/user_avatars/${contact.username.length % 4 * 2 + 1}.jpg'),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      title: Text(contact.username),
-      subtitle: Text(contact.fullname),
-      onTap: () {
-        openChat(contact);
+          title: Text(contact.username),
+          subtitle: Text(
+              future.hasData ? future.data.documents[0]['text'] : 'loading...'),
+          onTap: () {
+            openChat(contact);
+          },
+        );
       },
     );
   }

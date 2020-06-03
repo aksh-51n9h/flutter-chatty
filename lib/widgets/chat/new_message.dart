@@ -95,7 +95,7 @@ class _NewMessageState extends State<NewMessage> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: 6, vertical: 12),
         child: Container(
           // margin: const EdgeInsets.only(top: 10),
           decoration: BoxDecoration(
@@ -121,7 +121,6 @@ class _NewMessageState extends State<NewMessage> {
                   controller: _controller,
                   decoration: InputDecoration(
                     hintText: 'Type a message...',
-//                    hintStyle: TextStyle(color: Colors.white),
                     border: InputBorder.none,
                   ),
                   onChanged: (value) {

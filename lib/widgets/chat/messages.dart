@@ -11,6 +11,9 @@ class Messages extends StatefulWidget {
 }
 
 class _MessagesState extends State<Messages> {
+  final GlobalKey<AnimatedListState> _listStateKey =
+      GlobalKey<AnimatedListState>();
+
   @override
   void initState() {
     super.initState();
@@ -24,14 +27,23 @@ class _MessagesState extends State<Messages> {
         builder: (ctx, snapshot) {
           if (snapshot.hasData) {
             final List<Message> messages = snapshot.data;
-            return ListView.builder(
-              reverse: true,
-              itemBuilder: (ctx, index) {
-                final Message message = messages[index];
+//            return ListView.builder(
+//              reverse: true,
+//              itemBuilder: (ctx, index) {
+//                final Message message = messages[index];
+//
+//                return MessageBubble(message);
+//              },
+//              itemCount: snapshot.data.length,
+//            );
 
-                return MessageBubble(message);
+            return AnimatedList(
+              key: _listStateKey,
+              reverse: true,
+              itemBuilder: (ctx, index, animation) {
+                return MessageBubble(messages[index]);
               },
-              itemCount: snapshot.data.length,
+              initialItemCount: snapshot.data.length,
             );
           }
 
