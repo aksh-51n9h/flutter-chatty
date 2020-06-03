@@ -1,5 +1,5 @@
 import 'package:chatty/blocs/contacts_bloc.dart';
-import 'package:chatty/screens/empty_state_ui.dart';
+import 'package:chatty/widgets/empty_state/search_empty_state_ui.dart';
 import 'package:flutter/material.dart';
 
 class ContactsSearchDelegate extends SearchDelegate {
@@ -40,7 +40,7 @@ class ContactsSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     if (query.length < 1) {
-      return EmptyStateUI();
+      return SearchEmptyStateUI(SearchState.NOT_DETERMINED);
     }
 
     List searchResult = contactsBloc.searchContact(query);
@@ -60,10 +60,15 @@ class ContactsSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     if (query.length < 1) {
-      return EmptyStateUI();
+      return SearchEmptyStateUI(SearchState.NOT_DETERMINED);
     }
 
     List searchResult = contactsBloc.searchContact(query);
+
+    if (searchResult.length == 0) {
+      return SearchEmptyStateUI(SearchState.EMPTY);
+    }
+
     return Container(
       child: ListView.builder(
         itemBuilder: (ctx, index) {
@@ -76,6 +81,4 @@ class ContactsSearchDelegate extends SearchDelegate {
       ),
     );
   }
-
-
 }
