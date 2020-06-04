@@ -14,8 +14,6 @@ class Messages extends StatefulWidget {
 }
 
 class _MessagesState extends State<Messages> {
-  final GlobalKey<AnimatedListState> _listStateKey =
-      GlobalKey<AnimatedListState>();
 
   @override
   void initState() {
