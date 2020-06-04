@@ -28,6 +28,15 @@ class ChatsBloc implements Bloc {
       );
   }
 
+  void updateMessage(Message message) {
+    if (isCurrentUser(otherId: message.userId)) {
+      _firestore
+          .collection('chats/${chat.chatID}/messages')
+          .document(message.id)
+          .setData(message.toJson());
+    }
+  }
+
   void deleteMessage(Message message) {
     if (isCurrentUser(otherId: message.userId)) {
       _firestore
@@ -55,6 +64,8 @@ class ChatsBloc implements Bloc {
 
   Stream<List<Message>> get messagesStream => _messagesStreamController.stream;
 
+  final messageEditStreamController = StreamController<Message>();
+
   Stream<ChatSettings> get chatSettingsStream =>
       _firestore.document('chats/${chat.chatID}').snapshots().map(
         (event) {
@@ -69,5 +80,6 @@ class ChatsBloc implements Bloc {
   @override
   void dispose() {
     _messagesStreamController.close();
+    messageEditStreamController.close();
   }
 }

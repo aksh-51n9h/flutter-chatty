@@ -6,14 +6,16 @@ import 'package:intl/intl.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message message;
+  final BuildContext context;
 
-  MessageBubble(this.message);
+  MessageBubble(this.message, {this.context});
 
   final Radius radius = Radius.circular(14);
 
   @override
   Widget build(BuildContext context) {
-    final bool isMe = BlocProvider.of<ChatsBloc>(context)
+    final bool isMe = BlocProvider.of<ChatsBloc>(
+            this.context == null ? context : this.context)
         .isCurrentUser(otherId: message.userId);
 
     final String time = DateFormat.jm().format(message.createdAt.toDate());
@@ -41,42 +43,59 @@ class MessageBubble extends StatelessWidget {
           children: <Widget>[
             if (isMe) timeStampWidget,
             Container(
-              constraints: BoxConstraints(
-                maxWidth: constraints.maxWidth * 0.625,
-              ),
-              decoration: BoxDecoration(
-                color:
-                isMe ? Theme
-                    .of(context)
-                    .accentColor : Colors.blueGrey[700],
-                borderRadius: isMe
-                    ? BorderRadius.only(
-                    topLeft: radius, topRight: radius, bottomLeft: radius)
-                    : BorderRadius.only(
-                    topRight: radius,
-                    bottomLeft: radius,
-                    bottomRight: radius),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 10,
-              ),
-              margin: const EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 5,
-              ),
-              child: Text(
-                message.text,
-                style: Theme
-                    .of(context)
-                    .brightness == Brightness.light
-                    ? TextStyle(fontSize: 16.0, color: Colors.white)
-                    : TextStyle(fontSize: 16.0),
-                textAlign: TextAlign.left,
-                softWrap: true,
-                overflow: TextOverflow.clip,
-              ),
-            ),
+                constraints: BoxConstraints(
+                  maxWidth: constraints.maxWidth * 0.625,
+                ),
+                decoration: BoxDecoration(
+                  color: isMe
+                      ? Theme
+                      .of(context)
+                      .accentColor
+                      : Colors.blueGrey[700],
+                  borderRadius: isMe
+                      ? BorderRadius.only(
+                      topLeft: radius, topRight: radius, bottomLeft: radius)
+                      : BorderRadius.only(
+                      topRight: radius,
+                      bottomLeft: radius,
+                      bottomRight: radius),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 10,
+                ),
+                margin: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 5,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    if (message.isEdited)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          'Edited',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .caption,
+                          textAlign: TextAlign.left,
+                        ),
+                      ),
+                    Text(
+                      message.text,
+                      style: Theme
+                          .of(context)
+                          .brightness == Brightness.light
+                          ? TextStyle(fontSize: 16.0, color: Colors.white)
+                          : TextStyle(fontSize: 16.0),
+                      textAlign: TextAlign.left,
+                      softWrap: true,
+                      overflow: TextOverflow.clip,
+                    ),
+                  ],
+                )),
             if (!isMe) timeStampWidget
           ],
         );

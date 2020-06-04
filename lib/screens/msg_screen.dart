@@ -1,3 +1,4 @@
+import 'package:chatty/models/message.dart';
 import 'package:chatty/provider/bloc/bloc_provider.dart';
 import 'package:chatty/widgets/chat/messages.dart';
 import 'package:chatty/widgets/chat/new_message.dart';
@@ -76,9 +77,24 @@ class _MessageScreenState extends State<MessageScreen> {
               Expanded(
                 child: Messages(),
               ),
-              NewMessage(
-                isNewChat: false,
-              ),
+              StreamBuilder<Message>(
+                  stream: _chatsBloc.messageEditStreamController.stream,
+                  builder: (ctx, snapshot) {
+                    if (snapshot.hasData) {
+                      print(snapshot.data.toJson());
+                      return NewMessage(
+                        message: snapshot.data,
+                        isNewChat: false,
+                      );
+                    }
+
+                    return NewMessage(
+                      isNewChat: false,
+                    );
+                  }),
+//              NewMessage(
+//                isNewChat: false,
+//              ),
             ],
           ),
         ),

@@ -9,9 +9,11 @@ import 'package:flutter/material.dart';
 
 class NewMessage extends StatefulWidget {
   NewMessage({
+    this.message,
     this.isNewChat,
   });
 
+  Message message;
   final bool isNewChat;
 
   @override
@@ -20,9 +22,13 @@ class NewMessage extends StatefulWidget {
 
 class _NewMessageState extends State<NewMessage> {
   final _db = Firestore.instance;
-  final _controller = TextEditingController();
+  TextEditingController _controller;
 
-  String _enteredMessage = '';
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
 
   void _sendMessage() async {
     final ChatsBloc chatsBloc = BlocProvider.of<ChatsBloc>(context);
@@ -78,22 +84,28 @@ class _NewMessageState extends State<NewMessage> {
       batch.commit();
     }
 
-    final Message message = Message(
-      text: _enteredMessage,
-      createdAt: Timestamp.now(),
-      userId: sender.uid,
-    );
-
-    chatsBloc.sendMessage(message);
+    if (widget.message != null) {
+      widget.message.text = _controller.text;
+      widget.message.isEdited = true;
+      chatsBloc.updateMessage(widget.message);
+      widget.message = null;
+    } else {
+      final Message message = Message(
+        text: _controller.text,
+        createdAt: Timestamp.now(),
+        userId: sender.uid,
+      );
+      chatsBloc.sendMessage(message);
+    }
 
     _controller.clear();
-    setState(() {
-      _enteredMessage = '';
-    });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (widget.message != null) {
+      _controller.text = widget.message.text;
+    }
     return LayoutBuilder(builder: (context, constraints) {
       return Padding(
         padding: EdgeInsets.symmetric(horizontal: 6, vertical: 12),
@@ -110,7 +122,7 @@ class _NewMessageState extends State<NewMessage> {
             children: <Widget>[
               IconButton(
                 icon: Icon(Icons.sentiment_satisfied),
-                onPressed: _enteredMessage.trim().isEmpty ? null : () {},
+                onPressed: _controller.text.trim().isEmpty ? null : () {},
               ),
               Expanded(
                 child: TextFormField(
@@ -132,9 +144,6 @@ class _NewMessageState extends State<NewMessage> {
                     hintText: 'Type a message...',
                     border: InputBorder.none,
                   ),
-                  onChanged: (value) {
-                    _enteredMessage = value;
-                  },
                 ),
               ),
               IconButton(
@@ -144,11 +153,15 @@ class _NewMessageState extends State<NewMessage> {
               IconButton(
                 icon: Icon(
                   Icons.send,
-                  color: _enteredMessage.trim().isNotEmpty
+                  color: _controller.text
+                      .trim()
+                      .isNotEmpty
                       ? Colors.blueAccent[100]
                       : null,
                 ),
-                onPressed: _enteredMessage.trim().isEmpty ? null : _sendMessage,
+                onPressed: _controller.text
+                    .trim()
+                    .isEmpty ? null : _sendMessage,
               )
             ],
           ),

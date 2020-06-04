@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Message {
-  final String id;
+  String id;
   final String userId;
-  final String text;
-  final Timestamp createdAt;
+  String text;
+  Timestamp createdAt;
+  bool isEdited;
 
-  const Message({this.id, this.userId, this.text, this.createdAt});
+  Message(
+      {this.id, this.userId, this.text, this.createdAt, this.isEdited = false});
 
   factory Message.fromJson(String id, Map<String, dynamic> json) {
     return Message(
@@ -14,6 +16,7 @@ class Message {
       userId: json['userId'],
       text: json['text'],
       createdAt: json['createdAt'],
+      isEdited: json['isEdited'] ?? false,
     );
   }
 
@@ -23,6 +26,7 @@ class Message {
       'userId': this.userId,
       'text': this.text,
       'createdAt': this.createdAt,
+      'isEdited': this.isEdited,
     };
   }
 }

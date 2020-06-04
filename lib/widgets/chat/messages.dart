@@ -3,6 +3,7 @@ import 'package:chatty/models/message.dart';
 import 'package:chatty/provider/bloc/bloc_provider.dart';
 import 'package:chatty/widgets/chat/message_bubble.dart';
 import 'package:chatty/widgets/extras/waiting.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -14,7 +15,6 @@ class Messages extends StatefulWidget {
 }
 
 class _MessagesState extends State<Messages> {
-
   @override
   void initState() {
     super.initState();
@@ -37,14 +37,16 @@ class _MessagesState extends State<Messages> {
                 return PopupMenuButton<MessageEditOptions>(
                   itemBuilder: (ctx) {
                     return <PopupMenuEntry<MessageEditOptions>>[
-                      PopupMenuItem<MessageEditOptions>(
-                        value: MessageEditOptions.edit,
-                        child: FlatButton.icon(
-                          onPressed: null,
-                          icon: Icon(Icons.edit),
-                          label: Text('Edit'),
+                      if (BlocProvider.of<ChatsBloc>(context)
+                          .isCurrentUser(otherId: message.userId))
+                        PopupMenuItem<MessageEditOptions>(
+                          value: MessageEditOptions.edit,
+                          child: FlatButton.icon(
+                            onPressed: null,
+                            icon: Icon(Icons.edit),
+                            label: Text('Edit'),
+                          ),
                         ),
-                      ),
                       PopupMenuItem(
                         value: MessageEditOptions.copy,
                         child: FlatButton.icon(
@@ -76,7 +78,38 @@ class _MessagesState extends State<Messages> {
                   onSelected: (selectedItem) {
                     switch (selectedItem) {
                       case MessageEditOptions.info:
-                        print(message.toJson());
+                        showModalBottomSheet(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          context: context,
+                          builder: (ctx) {
+                            return Container(
+                              margin: const EdgeInsets.all(16),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).accentColor,
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 24,
+                                    ),
+                                    child: Text(
+                                      message.text,
+                                      softWrap: true,
+                                      style: TextStyle(fontSize: 16.0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
+                        );
                         break;
 
                       case MessageEditOptions.copy:
@@ -92,6 +125,14 @@ class _MessagesState extends State<Messages> {
                         BlocProvider.of<ChatsBloc>(context)
                             .deleteMessage(message);
                         break;
+
+                      case MessageEditOptions.edit:
+                        BlocProvider
+                            .of<ChatsBloc>(context)
+                            .messageEditStreamController
+                            .sink
+                            .add(message);
+                        break;
                       default:
                         break;
                     }
@@ -99,11 +140,6 @@ class _MessagesState extends State<Messages> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: MessageBubble(message),
-                );
-
-                return GestureDetector(
-                  onTap: () {},
                   child: MessageBubble(message),
                 );
               },
