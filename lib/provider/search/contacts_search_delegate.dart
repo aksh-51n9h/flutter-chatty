@@ -66,7 +66,7 @@ class ContactsSearchDelegate extends SearchDelegate {
     List searchResult = contactsBloc.searchContact(query);
 
     if (searchResult.length == 0) {
-      return SearchEmptyStateUI(SearchState.EMPTY);
+      return SearchEmptyStateUI(SearchState.NO_RESULTS);
     }
 
     return Container(

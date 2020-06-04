@@ -4,6 +4,9 @@ import 'package:chatty/provider/bloc/bloc_provider.dart';
 import 'package:chatty/widgets/chat/message_bubble.dart';
 import 'package:chatty/widgets/extras/waiting.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+enum MessageEditOptions { edit, copy, delete, info, none }
 
 class Messages extends StatefulWidget {
   @override
@@ -27,23 +30,86 @@ class _MessagesState extends State<Messages> {
         builder: (ctx, snapshot) {
           if (snapshot.hasData) {
             final List<Message> messages = snapshot.data;
-//            return ListView.builder(
-//              reverse: true,
-//              itemBuilder: (ctx, index) {
-//                final Message message = messages[index];
-//
-//                return MessageBubble(message);
-//              },
-//              itemCount: snapshot.data.length,
-//            );
-
-            return AnimatedList(
-              key: _listStateKey,
+            return ListView.builder(
+              physics: BouncingScrollPhysics(),
               reverse: true,
-              itemBuilder: (ctx, index, animation) {
-                return MessageBubble(messages[index]);
+              itemBuilder: (ctx, index) {
+                final Message message = messages[index];
+
+                return PopupMenuButton<MessageEditOptions>(
+                  itemBuilder: (ctx) {
+                    return <PopupMenuEntry<MessageEditOptions>>[
+                      PopupMenuItem<MessageEditOptions>(
+                        value: MessageEditOptions.edit,
+                        child: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.edit),
+                          label: Text('Edit'),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: MessageEditOptions.copy,
+                        child: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.content_copy),
+                          label: Text('Copy'),
+                        ),
+                      ),
+                      if (BlocProvider.of<ChatsBloc>(context)
+                          .isCurrentUser(otherId: message.userId))
+                        PopupMenuItem(
+                          value: MessageEditOptions.delete,
+                          child: FlatButton.icon(
+                            onPressed: null,
+                            icon: Icon(Icons.delete),
+                            label: Text('Delete'),
+                          ),
+                        ),
+                      PopupMenuItem(
+                        value: MessageEditOptions.info,
+                        child: FlatButton.icon(
+                          onPressed: null,
+                          icon: Icon(Icons.info),
+                          label: Text('Info'),
+                        ),
+                      ),
+                    ];
+                  },
+                  onSelected: (selectedItem) {
+                    switch (selectedItem) {
+                      case MessageEditOptions.info:
+                        print(message.toJson());
+                        break;
+
+                      case MessageEditOptions.copy:
+                        Clipboard.setData(ClipboardData(text: message.text));
+                        Scaffold.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Content copied'),
+                          ),
+                        );
+                        break;
+
+                      case MessageEditOptions.delete:
+                        BlocProvider.of<ChatsBloc>(context)
+                            .deleteMessage(message);
+                        break;
+                      default:
+                        break;
+                    }
+                  },
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: MessageBubble(message),
+                );
+
+                return GestureDetector(
+                  onTap: () {},
+                  child: MessageBubble(message),
+                );
               },
-              initialItemCount: snapshot.data.length,
+              itemCount: snapshot.data.length,
             );
           }
 

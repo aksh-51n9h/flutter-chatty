@@ -141,7 +141,11 @@ class _ContactListState extends State<ContactList> {
           ),
           title: Text(contact.username),
           subtitle: future.hasData
-              ? Text(future.data.documents[0]['text'])
+              ? Text(
+                  future.data.documents[0]['text'],
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                )
               : LastMessageWaiting(),
           onTap: () {
             openChat(contact);

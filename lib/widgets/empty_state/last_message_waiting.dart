@@ -43,4 +43,10 @@ class _LastMessageWaitingState extends State<LastMessageWaiting>
           );
         });
   }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 }

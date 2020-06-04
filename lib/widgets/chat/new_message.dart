@@ -21,6 +21,7 @@ class NewMessage extends StatefulWidget {
 class _NewMessageState extends State<NewMessage> {
   final _db = Firestore.instance;
   final _controller = TextEditingController();
+
   String _enteredMessage = '';
 
   void _sendMessage() async {
@@ -112,7 +113,15 @@ class _NewMessageState extends State<NewMessage> {
                 onPressed: _enteredMessage.trim().isEmpty ? null : () {},
               ),
               Expanded(
-                child: TextField(
+                child: TextFormField(
+                  cursorColor: Colors.orange,
+                  enableSuggestions: true,
+                  toolbarOptions: ToolbarOptions(
+                    copy: true,
+                    paste: true,
+                    cut: true,
+                    selectAll: true,
+                  ),
                   keyboardType: TextInputType.multiline,
                   style: TextStyle(fontSize: 16.0),
                   autocorrect: true,
@@ -124,9 +133,7 @@ class _NewMessageState extends State<NewMessage> {
                     border: InputBorder.none,
                   ),
                   onChanged: (value) {
-                    setState(() {
-                      _enteredMessage = value;
-                    });
+                    _enteredMessage = value;
                   },
                 ),
               ),
@@ -148,5 +155,10 @@ class _NewMessageState extends State<NewMessage> {
         ),
       );
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

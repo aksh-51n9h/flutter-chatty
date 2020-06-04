@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chatty/models/chat_settings.dart';
 import 'package:chatty/models/message.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,8 +15,9 @@ class ChatsBloc implements Bloc {
         .orderBy('createdAt', descending: true)
         .snapshots()
         .listen((event) {
-      _messagesSink
-          .add(event.documents.map((e) => Message.fromJson(e.data)).toList());
+      _messagesSink.add(event.documents
+          .map((e) => Message.fromJson(e.documentID, e.data))
+          .toList());
     });
   }
 
@@ -24,6 +26,15 @@ class ChatsBloc implements Bloc {
       ..add(
         message.toJson(),
       );
+  }
+
+  void deleteMessage(Message message) {
+    if (isCurrentUser(otherId: message.userId)) {
+      _firestore
+          .collection('chats/${chat.chatID}/messages')
+          .document(message.id)
+          .delete();
+    }
   }
 
   void addContact(String uid) {
@@ -43,6 +54,13 @@ class ChatsBloc implements Bloc {
   StreamSink<List<Message>> get _messagesSink => _messagesStreamController.sink;
 
   Stream<List<Message>> get messagesStream => _messagesStreamController.stream;
+
+  Stream<ChatSettings> get chatSettingsStream =>
+      _firestore.document('chats/${chat.chatID}').snapshots().map(
+        (event) {
+          return ChatSettings.fromJson(event.data);
+        },
+      );
 
   bool isCurrentUser({@required String otherId}) {
     return otherId.compareTo(chat.sender.uid) == 0;
