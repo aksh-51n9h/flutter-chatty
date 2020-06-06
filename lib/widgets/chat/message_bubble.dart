@@ -10,7 +10,7 @@ class MessageBubble extends StatelessWidget {
 
   MessageBubble(this.message, {this.context});
 
-  final Radius radius = Radius.circular(14);
+  final Radius radius = Radius.circular(8);
 
   @override
   Widget build(BuildContext context) {
@@ -52,24 +52,25 @@ class MessageBubble extends StatelessWidget {
                       .of(context)
                       .accentColor
                       : Colors.blueGrey[700],
-                  borderRadius: isMe
-                      ? BorderRadius.only(
-                      topLeft: radius, topRight: radius, bottomLeft: radius)
-                      : BorderRadius.only(
-                      topRight: radius,
-                      bottomLeft: radius,
-                      bottomRight: radius),
+                  borderRadius: BorderRadius.circular(8),
+//                  borderRadius: isMe
+//                      ? BorderRadius.only(
+//                          topLeft: radius, topRight: radius, bottomLeft: radius)
+//                      : BorderRadius.only(
+//                          topRight: radius,
+//                          bottomLeft: radius,
+//                          bottomRight: radius),
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
+                  horizontal: 8,
+                  vertical: 8,
                 ),
                 margin: const EdgeInsets.symmetric(
                   horizontal: 8,
                   vertical: 5,
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (message.isEdited)
                       Padding(
@@ -83,17 +84,38 @@ class MessageBubble extends StatelessWidget {
                           textAlign: TextAlign.left,
                         ),
                       ),
-                    Text(
-                      message.text,
-                      style: Theme
-                          .of(context)
-                          .brightness == Brightness.light
-                          ? TextStyle(fontSize: 16.0, color: Colors.white)
-                          : TextStyle(fontSize: 16.0),
-                      textAlign: TextAlign.left,
-                      softWrap: true,
-                      overflow: TextOverflow.clip,
-                    ),
+                    if (message.replyTo != null)
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme
+                              .of(context)
+                              .primaryColorLight,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ListTile(
+                          dense: true,
+                          title: Text('Replied to: '),
+                          subtitle: Text(
+                            message.replyTo,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    Container(
+                      padding:
+                      EdgeInsets.only(top: message.replyTo != null ? 8 : 0),
+                      child: Text(
+                        message.text,
+                        style: Theme
+                            .of(context)
+                            .brightness == Brightness.light
+                            ? TextStyle(fontSize: 16.0, color: Colors.white)
+                            : TextStyle(fontSize: 16.0),
+                        textAlign: TextAlign.left,
+                        softWrap: true,
+                        overflow: TextOverflow.clip,
+                      ),
+                    )
                   ],
                 )),
             if (!isMe) timeStampWidget

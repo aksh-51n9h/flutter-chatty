@@ -13,7 +13,7 @@ class CustomPageRoute extends PageRouteBuilder {
               borderRadius: BorderRadius.circular(15.0),
             );
           },
-//          transitionDuration: Duration(seconds: 3),
+//          transitionDuration: Duration(seconds: 2),
 //          transitionDuration: Duration(milliseconds: 450),
           transitionsBuilder: (BuildContext context,
               Animation<double> animation,
